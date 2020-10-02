@@ -25,8 +25,16 @@ Route::group(['prefix'=>'admin' , 'middleware'=>'auth:api'],function(){
 
 	Route::get('test','AuthController@test');
 	Route::apiResource('user','Api\UserController');
-
-
-		Route::apiResource('orders','Api\OrderController');
+	Route::apiResource('orders','Api\OrderController');
+	Route::apiResource('khohang', 'Api\KhohangController')->only('index','store','update');
 
 });
+Route::group(['prefix' => 'address'], function(){
+	Route::get('/', 'AddressController@province');
+	Route::get('{province_code}', 'AddressController@district');
+	Route::get('{province_code}/{district_code}', 'AddressController@commune');
+
+
+});
+
+// Route::get('{district}', 'AddressController@commune');
