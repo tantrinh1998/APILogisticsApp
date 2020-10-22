@@ -19,11 +19,11 @@ class KhohangController extends Controller
      */
     public function index()
     {
-        $user_id = Auth::user()->id; 
-       
-        $khohang = Khohang::where('user_id',$user_id)->get();
 
+        $user_id = Auth::user()->id; 
+        $khohang = Khohang::where('user_id',$user_id)->get();
         $data=[
+            'messaage' => 'ok',
             'status'=>'Success',
             'results'=>$khohang,
         ];
@@ -41,16 +41,15 @@ class KhohangController extends Controller
         $request->validate([
            
             'name' => 'required|string',
-            'phone' => 'required',
+            'phone' => 'required|numeric',
             'contact' => 'required|string',
             'code_commune' => 'required|string',
             'code_district' => 'required|string',
             'code_province' => 'required|string',
             'address' => 'required|string',
-           
-            'primary' => 'required',
-
+            'primary' => 'required|numeric',
         ]);
+
         $user_id = Auth::user()->id;
 
         $stt = Khohang::orderby('id','desc')->first()->id ?? 0;
@@ -96,6 +95,7 @@ class KhohangController extends Controller
         ];
 
         $data =[
+            'messaage' => 'ok',
             'status'=>'success',
             'results'=>$results,
         ];
@@ -125,9 +125,15 @@ class KhohangController extends Controller
     public function update(Request $request, $code)
     {
         $khohang = Khohang::where('code',$code)->first();
+        $request->validate([
+             'name' => 'required|string',
+             // 'code' => 'required|string',
+             'contact' => 'required|string',
+             'phone' => 'required|numeric',
 
+        ]);
         $khohang->name = $request->name;
-        $khohang->code = $code;
+        // $khohang->code = $code;
         $khohang->contact = $request->contact;
         $khohang->phone = $request->phone;
 
@@ -140,14 +146,14 @@ class KhohangController extends Controller
         $results = [
             'code' => $code,
             'diff' =>$diff,
+            'updated_at'=> $khohang->updated_at,
         ];
         
      
         $data = [
+            'messaage' =>'ok',
             "status"=>"success",
             'results' =>$results,
-            'updated_at'=> $khohang->updated_at,
-
         ];
 
         return response()->json($data);

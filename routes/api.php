@@ -17,17 +17,16 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login', 'AuthController@login');
     Route::post('signup', 'AuthController@signup');
-    Route::get('logout', 'AuthController@logout')->middleware('auth::api');
-	Route::get('user/info', 'AuthController@user')->middleware('auth::api');	
+    Route::get('logout', 'AuthController@logout')->middleware('auth:api');
+	Route::get('user/info', 'AuthController@user')->middleware('auth:api');	
 });
 
-Route::group(['prefix'=>'admin' , 'middleware'=>'auth:api'],function(){
+Route::group( ['middleware'=>'auth:api'],function(){
 
 	Route::get('test','AuthController@test');
-	Route::apiResource('user','Api\UserController');
-	Route::apiResource('orders','Api\OrderController');
+	// Route::apiResource('user','Api\UserController');
 	Route::apiResource('khohang', 'Api\KhohangController')->only('index','store','update');
-
+	Route::apiResource('orders','Api\OrderController');
 });
 Route::group(['prefix' => 'address'], function(){
 	Route::get('/', 'AddressController@province');

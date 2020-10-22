@@ -31,6 +31,32 @@ class OrderController extends Controller
      */
     public function store(Request  $request)
     {
+        $request->validate([
+            
+    "pickup_phone" => 'required|numeric',
+    "pickup_address" => 'required|string',
+    // "pickup_commune" => 'required|string',
+    "pickup_district" => 'required|string',
+    "pickup_province" => 'required|string',
+    "name" => 'required|string',
+    "phone" => 'required|numeric',
+    // "email" => 'required|string',
+    "address" => 'required|string',
+    "province" => 'required|string',
+    "district" => 'required|string',
+    "commune" => 'required|string',
+    "amount" => 'required|numeric',
+    // "value" => 'required|numeric',
+    "weight"  => 'required|numeric',
+    "payer" => 'required|numeric',
+    "service" => 'required|numeric',
+    "config" => 'required|numeric',
+        // "soc" => 'required|string',
+        // "note" => 'required|string',
+    "product_type" => 'required|numeric',
+    // "products" => 'required|string',
+
+        ]);
        //{pickup_code,pickup_phone,pickup_address,pickup_province,pickup_district,pickup_commune}
         $user_id = Auth::user()->id;
         //luu nguoi gui
@@ -151,6 +177,7 @@ class OrderController extends Controller
      ];
 
      $data = [
+        'message' => 'Create Order Success',
         'status' =>'Success',
         'results' => $results,
      ];

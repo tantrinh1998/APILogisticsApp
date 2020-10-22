@@ -28,9 +28,16 @@ class AuthController extends Controller
             'password' => bcrypt($request->password)
         ]);
         $user->save();
-        return response()->json([
-            'message' => 'Successfully created user!'
-        ], 201);
+        $results =[
+            'name' => $request->name,
+            'email' => $request->email,
+        ];
+        $data = [
+            'messaage' => 'Successfully created user!',
+            'status'=>'201',
+            'results'=>$results,
+        ];
+        return response()->json($data);
     }
   
     /**
@@ -62,13 +69,21 @@ class AuthController extends Controller
         if ($request->remember_me)
             $token->expires_at = Carbon::now()->addWeeks(1);
         $token->save();
-        return response()->json([
-            'access_token' => $tokenResult->accessToken,
+
+
+        $results =[
+           'access_token' => $tokenResult->accessToken,
             'token_type' => 'Bearer',
             'expires_at' => Carbon::parse(
                 $tokenResult->token->expires_at
             )->toDateTimeString()
-        ]);
+        ];
+        $data = [
+            'messaage' => 'Successfully login !',
+            'status'=>'200',
+            'results'=>$results,
+        ];
+        return response()->json($data);
     }
   
     /**
@@ -80,7 +95,11 @@ class AuthController extends Controller
     {
         $request->user()->token()->revoke();
         return response()->json([
-            'message' => 'Successfully logged out'
+
+            'message' => 'Successfully logged out',
+            'status' => '200',
+            'results' => null,
+
         ]);
     }
   
@@ -89,13 +108,16 @@ class AuthController extends Controller
      *
      * @return [json] user object
      */
-    public function user(Request $request)
+  
+     public function user(Request $request)
     {
-        return response()->json($request->user());
-    }   
-     public function test(Request $request)
-    {
-        $data = Auth::user()->id;
+        $user = Auth::user();
+
+        $data = [
+            'messaage' => 'Successfully login !',
+            'status'=>'200',
+            'results'=>$user,
+        ];
         return response()->json($data);
     }
 }
