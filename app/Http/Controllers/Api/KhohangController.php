@@ -24,7 +24,7 @@ class KhohangController extends Controller
         $khohang = Khohang::where('user_id',$user_id)->get();
         $data=[
             'messaage' => 'ok',
-            'status'=>'Success',
+            'status'=>'1',
             'results'=>$khohang,
         ];
         return response()->json($data);
@@ -96,7 +96,7 @@ class KhohangController extends Controller
 
         $data =[
             'messaage' => 'ok',
-            'status'=>'success',
+            'status'=>'1',
             'results'=>$results,
         ];
 
@@ -152,7 +152,7 @@ class KhohangController extends Controller
      
         $data = [
             'messaage' =>'ok',
-            "status"=>"success",
+            "status"=>"1",
             'results' =>$results,
         ];
 

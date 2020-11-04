@@ -18,11 +18,33 @@ class OrderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function getDetailOrder($orders){
+
+    }
     public function index()
     {
-        //
+        // $user_id = Auth::user()->id;
+        $user_id = 1;
+        $orders = Order::where('user_id',$user_id)->with('PickUper','Receiver')->get();
+
+        $data = [
+            'message' => 'ok',
+            'status' => '1',
+            'results' => $orders
+        ];
+
+        return response()->json($data);
     }
 
+    public function getStatus(){
+        $results = Status::all();
+        $data = [
+            'status' => 1,
+            'message' => 'ok',
+            'results' =>  $results,
+        ];
+        return response()->json($data);
+    }
     /**
      * Store a newly created resource in storage.
      *
@@ -148,8 +170,9 @@ class OrderController extends Controller
         'status' =>$status,
          ];
 
-        Order::create($arrOrder);
-
+        $order = Order::create($arrOrder);
+        $aab = $order->getStatus->value;
+        // dd($aab);
 
         DB::commit();
         } catch (\Exception $e) {
@@ -157,13 +180,13 @@ class OrderController extends Controller
         
         \Log::info($e);
 
-        return "cc";
+        // return "cc";
         }
 
 
 
 
-    $status_name = "Chờ Duyệt"; 
+    // $status_name = "Chờ Duyệt"; 
 
     $results = [ 
         'code' => $code ,
@@ -173,14 +196,15 @@ class OrderController extends Controller
         'weight' => $weight,
         'fee' => $fee,
         'status'=> $status,
-        'status_name' =>$status_name,
+        'status_name' =>$aab,
      ];
 
      $data = [
         'message' => 'Create Order Success',
-        'status' =>'Success',
+        'status' =>'1',
         'results' => $results,
      ];
+     // dd($aab);
     return response()->json($data);
 }
     /**
@@ -191,7 +215,16 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        //
+        $results = ($order->with('PickUper','Receiver')->first()); 
+        $data = [
+            'message' => 'Ok',
+            'status'=>'1',
+            'results' => $results,
+
+        ];
+
+
+        return response()->json($data);
     }
 
     /**
@@ -203,7 +236,17 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
-        //
+        
+        if($order->status != 1) return response()->json(['Error'=>'No update when status there']);
+        $order->update($request->only(['phone','name','email']));
+
+        $results = ($order->with('PickUper','Receiver')->first());
+        $data = [
+            'status'=>1,
+            'message' =>"ok",
+            'results' =>$results,
+        ];
+        return response()->json($data);
     }
 
     /**
@@ -214,6 +257,8 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        //
+        $order->update([
+            'status'=>26,
+        ]);
     }
 }

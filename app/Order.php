@@ -29,8 +29,15 @@ class Order extends Model
         'notes',
         'user_id',
         'status',
-
-
-
     ];
+    public function PickUper(){
+        return $this->belongsTo('App\Person','pickup_id');
+    }
+    public function Receiver(){
+        return $this->belongsTo('App\Person','receiver_id');
+    }
+    public function getStatus(){
+        return $this->belongsTo('App\Status','status');
+    }
+
 }

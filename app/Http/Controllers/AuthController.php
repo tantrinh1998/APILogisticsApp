@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\User;
+use App\Status;
 class AuthController extends Controller
 {
     /**
@@ -119,5 +120,10 @@ class AuthController extends Controller
             'results'=>$user,
         ];
         return response()->json($data);
+    }
+
+    public function test(){
+        $data = Status::all();
+            return response()->json($data);
     }
 }
