@@ -4,6 +4,11 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Doisoat;
+use App\Order;
+use App\User;
+use App\Status;
+use DB;
 
 class Kernel extends ConsoleKernel
 {
@@ -13,7 +18,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        Commands\DoiSoatCommand::class,
     ];
 
     /**
@@ -24,7 +29,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+ 
+        $schedule->command('command:doisoat')->dailyAt('20:00');
+        // $schedule->command('command:doisoat');
     }
 
     /**

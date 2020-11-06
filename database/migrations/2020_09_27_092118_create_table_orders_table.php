@@ -36,6 +36,7 @@ class CreateTableOrdersTable extends Migration
             $table->json('journeys')->nullable();
             $table->string('notes')->nullable();
             $table->tinyInteger('user_id');
+            $table->tinyInteger('doisoat_id')->default('0');
             $table->tinyInteger('status');
 
             $table->timestamps();

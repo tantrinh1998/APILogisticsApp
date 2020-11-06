@@ -12,93 +12,98 @@ class StatusSeeder extends Seeder
     public function run()
     {
              DB::table('status')->insert([
-            'value' => "Chờ Duyệt",    	
-       		]);
+            'value' => "Chờ Duyệt",       
+                  ]);
              DB::table('status')->insert([
-            'value' =>"Chờ Lấy Hàng",    	
-       		]);
+            'value' =>"Chờ Lấy Hàng",     
+                  ]);
              DB::table('status')->insert([
-            'value' => "Đang Lấy Hàng",    	
-       		]);
+            'value' => "Đang Lấy Hàng",         
+                  ]);
              DB::table('status')->insert([
-            'value' => "Đã Lấy Hàng",    	
-       		]);
+            'value' => "Đã Lấy Hàng",     
+                  ]);
              DB::table('status')->insert([
-            'value' => "Hoãn Lấy Hàng",    	
-       		]);
+            'value' => "Hoãn Lấy Hàng",         
+                  ]);
              DB::table('status')->insert([
-            'value' => "Hoãn Lấy Hàng",    	
-       		]);
+            'value' => "Hoãn Lấy Hàng",         
+                  ]);
              DB::table('status')->insert([
-            'value' => "Hoãn Lấy Hàng",    	
-       		]);
+            'value' => "Hoãn Lấy Hàng",         
+                  ]);
              DB::table('status')->insert([
-            'value' => "Hoãn Lấy Hàng",    	
-       		]);
+            'value' => "Hoãn Lấy Hàng",         
+                  ]);
              DB::table('status')->insert([
-            'value' => "Hoãn Lấy Hàng",    	
-       		]);
+            'value' => "Hoãn Lấy Hàng",         
+                  ]);
              DB::table('status')->insert([
-            'value' => "Không Lấy Được",    	
-       		]);
+            'value' => "Không Lấy Được",        
+                  ]);
              DB::table('status')->insert([
-            'value' => "Đang Nhập Kho",    	
-       		]);
+            'value' => "Đang Nhập Kho",         
+                  ]);
              DB::table('status')->insert([
-            'value' => "Đã Nhập Kho",    	
-       		]);
+            'value' => "Đã Nhập Kho",     
+                  ]);
              DB::table('status')->insert([
-            'value' => "Đang Chuyển Kho Giao",    	
-       		]);
+            'value' => "Đang Chuyển Kho Giao",        
+                  ]);
              DB::table('status')->insert([
-            'value' => "Đã Chuyển Kho Giao",    	
-       		]);
+            'value' => "Đã Chuyển Kho Giao",          
+                  ]);
              DB::table('status')->insert([
-            'value' => "Đang Giao Hàng",    	
-       		]);
+            'value' => "Đang Giao Hàng",        
+                  ]);
              DB::table('status')->insert([
-            'value' =>  "Đã Giao Hàng Toàn Bộ",    	
-       		]);
+            'value' =>  "Đã Giao Hàng Toàn Bộ",       
+                  ]);
              DB::table('status')->insert([
-            'value' =>"Đã Giao Hàng Một Phần",    	
-       		]);
+            'value' =>"Đã Giao Hàng Một Phần",        
+                  ]);
              DB::table('status')->insert([
-            'value' => "Hoãn Giao Hàng",    	
-       		]);
+            'value' => "Hoãn Giao Hàng",        
+                  ]);
              DB::table('status')->insert([
-            'value' => "Không Giao Được",    	
-       		]);
+            'value' => "Không Giao Được",       
+                  ]);
              DB::table('status')->insert([
-            'value' => "Đã Đối Soát Giao Hàng",    	
-       		]);
+            'value' => "Đã Đối Soát Giao Hàng",       
+                  ]);
              DB::table('status')->insert([
-            'value' => "Đã Đối Soát Trả Hàng",    	
-       		]);
+            'value' => "Đã Đối Soát Trả Hàng",        
+                  ]);
              DB::table('status')->insert([
-            'value' => "Đang Chuyển Kho Trả",    	
-       		]);
+            'value' => "Đang Chuyển Kho Trả",         
+                  ]);
              DB::table('status')->insert([
-            'value' =>  "Đang Trả Hàng",    	
-       		]);
+            'value' =>  "Đang Trả Hàng",        
+                  ]);
              DB::table('status')->insert([
-            'value' =>  "Đã Trả Hàng",    	
-       		]);
+            'value' =>  "Đã Trả Hàng",          
+                  ]);
              DB::table('status')->insert([
-            'value' => "Hoãn Trả Hàng",    	
-       		]);
+            'value' => "Hoãn Trả Hàng",         
+                  ]);
              DB::table('status')->insert([
-            'value' => "Huỷ",    	
-       		]);
+            'value' => "Huỷ",       
+                  ]);
              DB::table('status')->insert([
-            'value' => "Đang Vận Chuyển",    	
-       		]);
+            'value' => "Đang Vận Chuyển",       
+                  ]);
               DB::table('status')->insert([
-            'value' => "Xác Nhận Hoàn",    	
-       		]);
+            'value' => "Xác Nhận Hoàn",         
+                  ]);
             DB::table('status')->insert([
             'value' => "Đã Hủy",         
                   ]);
-
+            DB::table('status')->insert([
+                     'value' => "Chưa Thanh Toán",         
+                           ]);            
+            DB::table('status')->insert([
+                              'value' => "Đã Thanh Toán",         
+                                    ]);              
 
 
 
