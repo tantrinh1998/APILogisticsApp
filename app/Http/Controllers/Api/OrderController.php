@@ -174,6 +174,7 @@ class OrderController extends Controller
          ];
 
         $order = Order::create($arrOrder);
+        $aab ='';
         $aab = $order->getStatus->value;
         // dd($aab);
 

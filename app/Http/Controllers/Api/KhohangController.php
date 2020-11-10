@@ -124,7 +124,7 @@ class KhohangController extends Controller
      */
     public function update(Request $request, $code)
     {
-        $khohang = Khohang::where('code',$code)->first();
+        
         $request->validate([
              'name' => 'required|string',
              // 'code' => 'required|string',
@@ -132,6 +132,7 @@ class KhohangController extends Controller
              'phone' => 'required|numeric',
 
         ]);
+        $khohang = Khohang::where('code',$code)->first();
         $khohang->name = $request->name;
         // $khohang->code = $code;
         $khohang->contact = $request->contact;
