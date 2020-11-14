@@ -56,10 +56,12 @@ class KhohangController extends Controller
         $stt+=1;
 
         $code = 'KH00000'.$stt;
+        // dd($code);
         $commune = Commune::select('name')->where('commune_code',$request->code_commune)->first() ;
         $district = District::select('name')->where('district_code',$request->code_district)->first() ;
         $province = Province::select('name')->where('province_code',$request->code_province)->first();
-        $formatted_address= $request->address . " - ". $commune->name ." - ". $district->name ." - ".$province->name;
+        $abc = $this->findByCommune($request->code_district);
+        $formatted_address= $request->address . ' - ' .$abc;
         $khohang_detail = [
             'code' => $code,
             'name' => $request->name,
@@ -82,14 +84,14 @@ class KhohangController extends Controller
                 $primary_name = "Kho Mặc Định" ;
             else $primary_name = "Kho Thường";
         $results = [
-            'code'=>'$code',
+            'code'=>$code,
             'name' => $request->name,
             'address'  => $request->address,
             'formatted_address' => $formatted_address,          
             'status'=>'1',
             'status_name' => 'Hoạt Động',
             'primary' => $request->primary,
-            'primary_name' =>'$primary_name',
+            'primary_name' =>$primary_name,
             'created_at' => $khohang->created_at,
             'updated_at' => $khohang->updated_at,
         ];
@@ -112,7 +114,13 @@ class KhohangController extends Controller
      */
     public function show(Khohang $khohang)
     {
-        //
+        $results = $khohang;
+        $data =[
+            'messaage' => 'ok',
+            'status'=>'1',
+            'results'=>$results,
+        ];
+         return response()->json($data);
     }
 
     /**
@@ -169,5 +177,17 @@ class KhohangController extends Controller
     public function destroy(Khohang $khohang)
     {
         //
+    }
+
+        public function findByCommune ($district_code) {
+        $commune =  Commune::where('district_code',$district_code)->first();
+        // dd($commune);
+        $commune->district->province;
+       
+        $results = 
+             $commune->name . ' - ' . $commune->district->name .' - ' . $commune->district->province->name
+        ;
+
+        return $results;
     }
 }

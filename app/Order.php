@@ -9,6 +9,7 @@ class Order extends Model
     protected $fillable = [
         'code', 
         'soc',
+    
         'pickup_id',
         'receiver_id',
         'amount',

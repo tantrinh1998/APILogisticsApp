@@ -55,6 +55,7 @@ class OrderController extends Controller
             
     "pickup_phone" => 'required|numeric',
     "pickup_address" => 'required|string',
+    "pickup_code" => 'required|string',
     // "pickup_commune" => 'required|string',
     "pickup_district" => 'required|string',
     "pickup_province" => 'required|string',
@@ -242,7 +243,8 @@ class OrderController extends Controller
     {
         
         if($order->status != 1) return response()->json(['Error'=>'No update when status there']);
-        $order->update($request->only(['phone','name','email']));
+
+          $receiver = Receiver::find($order->receiver_id)->update($request->only(['phone','name','email']));
         
         $results = ($order->with('PickUper','Receiver')->get());
         $data = [

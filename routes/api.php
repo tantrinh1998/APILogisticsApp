@@ -31,7 +31,7 @@ Route::group( ['middleware'=>'auth:api'],function(){
 
 	// Route::get('test','AuthController@test');
 	// Route::apiResource('user','Api\UserController');
-	Route::apiResource('khohang', 'Api\KhohangController')->only('index','store','update');
+	Route::apiResource('khohang', 'Api\KhohangController');
 	Route::apiResource('orders','Api\OrderController');
 	Route::get('orders-status','Api\OrderController@getStatus');
 	Route::post('orders-status','Api\OrderController@updateStatus');
@@ -41,9 +41,10 @@ Route::group( ['middleware'=>'auth:api'],function(){
 
 });
 Route::group(['prefix' => 'address'], function(){
-	Route::get('/', 'AddressController@province');
-	Route::get('{province_code}', 'AddressController@district');
-	Route::get('{province_code}/{district_code}', 'AddressController@commune');
+	Route::get('/province', 'AddressController@province');
+	Route::get('/district', 'AddressController@district');
+	Route::get('/commune', 'AddressController@commune');
+	Route::get('/find', 'AddressController@findByCommune');
 
 
 });

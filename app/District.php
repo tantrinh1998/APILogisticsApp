@@ -15,4 +15,8 @@ class District extends Model
     	'province_code'
 
     ];
+
+       public function province(){
+   		return $this->belongsTo('App\Province','province_code','province_code');
+   }
 }

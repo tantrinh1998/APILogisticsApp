@@ -14,4 +14,8 @@ class Commune extends Model
     	'type',
     	'district_code',
     ];
+
+   public function district(){
+   		return $this->belongsTo('App\District','district_code','district_code');
+   }
 }

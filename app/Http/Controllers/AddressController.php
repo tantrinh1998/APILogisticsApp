@@ -10,22 +10,48 @@ use App\Commune;
 class AddressController extends Controller
 {
     public function province(){
-    	$data = Province::all();
-
+    	$results = Province::all();
+        $data = [
+            'status' => '1',
+            'message' => 'ok',
+            'results' => $results
+        ];
     	return response()->json($data);
 
     }
 
-    public function district($province_code){
-    	$data = District::where('province_code',$province_code)->get();
-
+    public function district(Request $request){
+    	$results = District::where('province_code',$request->province_code)->get();
+        $data = [
+            'status' => '1',
+            'message' => 'ok',
+            'results' => $results
+        ];
     	return response()->json($data);
     }
 
-    public function commune($province_code ,$district_code){
-    	$data = Commune::where('district_code',$district_code)->get();
-
+    public function commune(Request $request){
+    	$results = Commune::where('district_code',$request->district_code)->get();
+          $data = [
+            'status' => '1',
+            'message' => 'ok',
+            'results' => $results
+        ];
     	return response()->json($data);
     }
     
+    public function findByCommune (Request $request) {
+        $commune =  Commune::where('district_code',$request->district_code)->first();
+        $commune->district->province;
+       
+        $results = [
+            "address" => $commune->name . ' - ' . $commune->district->name .' - ' . $commune->district->province->name
+        ];
+        $data = [
+            "status" => '1',
+            "message" => 'ok',
+            "results" => $results
+        ];
+        return response()->json( $data);
+    }
 }
