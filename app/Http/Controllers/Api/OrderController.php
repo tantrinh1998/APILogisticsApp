@@ -136,7 +136,7 @@ class OrderController extends Controller
         $id_last+=1;
         $soc = 'PK.DACN'. $id_last;
 
-        $code = 'MDH>DACN'.$id_last;
+        $code = 'MDH.DACN'.$id_last;
         //luu order
         $checkHuyen = 0;
         if($request->district == $request->pickup_district) {
@@ -244,9 +244,9 @@ class OrderController extends Controller
         
         if($order->status != 1) return response()->json(['Error'=>'No update when status there']);
 
-          $receiver = Receiver::find($order->receiver_id)->update($request->only(['phone','name','email']));
+          $receiver = Person::find($order->receiver_id)->update($request->only(['phone','name','email']));
         
-        $results = ($order->with('PickUper','Receiver')->get());
+        $results = ($order->with('PickUper','Receiver')->first());
         $data = [
             'status'=>1,
             'message' =>"ok",
