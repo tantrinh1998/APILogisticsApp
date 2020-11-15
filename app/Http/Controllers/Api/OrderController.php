@@ -11,6 +11,7 @@ use App\User;
 use App\Person;
 use DB;
 use App\Doisoat;
+use App\Khohang;
 class OrderController extends Controller
 {
     /**
@@ -51,37 +52,81 @@ class OrderController extends Controller
      */
     public function store(Request  $request)
     {
+
+      if(isset($request->pickup_code)) {
+          $request->validate([
+              
+          "name" => 'required|string',
+          "phone" => 'required|numeric',
+          // "email" => 'required|string',
+          "address" => 'required|string',
+          "province" => 'required|string',
+          "district" => 'required|string',
+          "commune" => 'required|string',
+          "amount" => 'required|numeric',
+          // "value" => 'required|numeric',
+          "weight"  => 'required|numeric',
+          "payer" => 'required|numeric',
+          "service" => 'required|numeric',
+          "config" => 'required|numeric',
+              // "soc" => 'required|string',
+              // "note" => 'required|string',
+          "product_type" => 'required|numeric',
+          // "products" => 'required|string',
+
+              ]);
+      } else {
         $request->validate([
             
-    "pickup_phone" => 'required|numeric',
-    "pickup_address" => 'required|string',
-    "pickup_code" => 'required|string',
-    // "pickup_commune" => 'required|string',
-    "pickup_district" => 'required|string',
-    "pickup_province" => 'required|string',
-    "name" => 'required|string',
-    "phone" => 'required|numeric',
-    // "email" => 'required|string',
-    "address" => 'required|string',
-    "province" => 'required|string',
-    "district" => 'required|string',
-    "commune" => 'required|string',
-    "amount" => 'required|numeric',
-    // "value" => 'required|numeric',
-    "weight"  => 'required|numeric',
-    "payer" => 'required|numeric',
-    "service" => 'required|numeric',
-    "config" => 'required|numeric',
-        // "soc" => 'required|string',
-        // "note" => 'required|string',
-    "product_type" => 'required|numeric',
-    // "products" => 'required|string',
+          "pickup_phone" => 'required|numeric',
+          "pickup_address" => 'required|string',
+         
+          // "pickup_commune" => 'required|string',
+          "pickup_district" => 'required|string',
+          "pickup_province" => 'required|string',
+          "name" => 'required|string',
+          "phone" => 'required|numeric',
+          // "email" => 'required|string',
+          "address" => 'required|string',
+          "province" => 'required|string',
+          "district" => 'required|string',
+          "commune" => 'required|string',
+          "amount" => 'required|numeric',
+          // "value" => 'required|numeric',
+          "weight"  => 'required|numeric',
+          "payer" => 'required|numeric',
+          "service" => 'required|numeric',
+          "config" => 'required|numeric',
+              // "soc" => 'required|string',
+              // "note" => 'required|string',
+          "product_type" => 'required|numeric',
+          // "products" => 'required|string',
 
         ]);
+      }
+
+
+        
        //{pickup_code,pickup_phone,pickup_address,pickup_province,pickup_district,pickup_commune}
         $user_id = Auth::user()->id;
-        //luu nguoi gui
-        $arrPerson = [
+        if(isset($request->pickup_code)) {
+          $khohang = Khohang::where('code',$request->pickup_code)->first();
+          // dd($khohang); 
+          $arrPerson = [
+            'code' => $request->pickup_code ?? null,
+            'name' =>  null,
+            'email' =>  null,
+            'phone' => $khohang->phone,
+            'sphone' => null,
+            'address' => $khohang->address,
+            'province' => $khohang->code_province,
+            'district' => $khohang->code_district,
+            'commune' => $khohang->code_commune,
+            'type' => 1,
+        ];
+
+        } else {
+            $arrPerson = [
             'code' => $request->pickup_code ?? null,
             'name' =>  null,
             'email' =>  null,
@@ -93,6 +138,9 @@ class OrderController extends Controller
             'commune' => $request->pickup_commune,
             'type' => 1,
         ];
+        }
+
+        $code="";
         DB::beginTransaction();
         try {
        
@@ -100,7 +148,7 @@ class OrderController extends Controller
         $pickuper->save();
 
         $pickup_id = $pickuper->id;
-        //luu nguoi nhan
+        
         $arrPerson = [
             'code' => null,
             'name' =>  $request->name ?? null,
@@ -137,6 +185,7 @@ class OrderController extends Controller
         $soc = 'PK.DACN'. $id_last;
 
         $code = 'MDH.DACN'.$id_last;
+
         //luu order
         $checkHuyen = 0;
         if($request->district == $request->pickup_district) {
@@ -176,6 +225,7 @@ class OrderController extends Controller
 
         $order = Order::create($arrOrder);
         $aab ='';
+        // dd( $order);
         $aab = $order->getStatus->value;
         // dd($aab);
 
@@ -190,8 +240,8 @@ class OrderController extends Controller
 
 
 
-
     // $status_name = "Chờ Duyệt"; 
+ // dd( $code);
 
     $results = [ 
         'code' => $code ,
