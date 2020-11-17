@@ -11,7 +11,8 @@ class Doisoat extends Model
     protected $fillable =[
         'code',
         'status',
-        'tiendoisoat'
+        'tiendoisoat',
+        'user_id'
     ];
 
     public function getStatus(){

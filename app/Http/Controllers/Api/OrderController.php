@@ -116,12 +116,12 @@ class OrderController extends Controller
             'code' => $request->pickup_code ?? null,
             'name' =>  null,
             'email' =>  null,
-            'phone' => $khohang->phone,
+            'phone' => $khohang->phone ?? null,
             'sphone' => null,
             'address' => $khohang->address,
-            'province' => $khohang->code_province,
-            'district' => $khohang->code_district,
-            'commune' => $khohang->code_commune,
+            'province' => $khohang->code_province ?? null,
+            'district' => $khohang->code_district ?? null,
+            'commune' => $khohang->code_commune ?? null,
             'type' => 1,
         ];
 
@@ -369,7 +369,7 @@ class OrderController extends Controller
         return response()->json($data);
     }
 
-    public function doisoat1donhang( $code ){
+    public function doisoat1donhang( $code ,$user_id){
         // $code =$request->code;
         $check= -1;
         $listCodeOrder = Doisoat::select('code')->get();
@@ -397,9 +397,10 @@ class OrderController extends Controller
             $tiendoisoat = $amount - $fee -$phibaohiem ;
 
             $arrDoiSoat = [
-                "code"=>"$code",
-                "tiendoisoat"=>" $tiendoisoat",
+                "code"=>$code->code,
+                "tiendoisoat"=>$tiendoisoat,
                 "status" => 30,
+                "user_id" => $user_id,
 
             ];
 
@@ -414,7 +415,7 @@ class OrderController extends Controller
         $listCodeDonHang = Order::select('code')->where('user_id',$user_id)->get();
 
         foreach($listCodeDonHang as $element){
-            $this->doisoat1donhang($element);
+            $this->doisoat1donhang($element ,$user_id);
         };
        
     }
@@ -438,7 +439,35 @@ class OrderController extends Controller
         return response()->json($data);
        
     }
+    public function getDoiSoatTheoDotCua1User(){
+       $user_id = Auth::user()->id;
+       $doisoat  =  Doisoat::where('user_id',$user_id)->get()
+                    ->groupBy(function($date) {
+                      return \Carbon\Carbon::parse($date->created_at)->format('y-m-d');
+                      });
 
+       $data = [
+          "status" => '1',
+          "message" => 'ok',
+          'results' => $doisoat
+       ];
+       return response()->json($data);
+    }
+
+    public function getDoiSoatTheoDotAll (){
+      $doisoat  =  Doisoat::all()
+
+                    ->groupBy(function($date) {
+                      return \Carbon\Carbon::parse($date->created_at)->format('y-m-d');
+                      });
+
+       $data = [
+          "status" => '1',
+          "message" => 'ok',
+          'results' => $doisoat
+       ];
+       return response()->json($data);
+    }
     public function getAllDoiSoat(){
         $doisoat = Doisoat::all();
         $data = [

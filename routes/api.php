@@ -37,7 +37,15 @@ Route::group( ['middleware'=>'auth:api'],function(){
 	Route::post('orders-status','Api\OrderController@updateStatus');
 	// Route::get('doisoat','Api\OrderController@doisoat1donhang');
 	Route::get('list-status','Api\OrderController@getListStatus');
-	Route::post('doi-soat-all','Api\OrderController@doiSoatToanBoOrder');
+
+	Route::group(['prefix' => 'doi-soat'], function(){
+		Route::post('doi-soat-all','Api\OrderController@doiSoatToanBoOrder');
+		Route::get('get-all-doi-soat','Api\OrderController@getAllDoiSoat');
+
+		Route::get('get-doi-soat-theo-dot-user','Api\OrderController@getDoiSoatTheoDotCua1User');
+		Route::get('get-doi-soat-theo-dot-all','Api\OrderController@getDoiSoatTheoDotAll');
+	});
+	
 
 });
 Route::group(['prefix' => 'address'], function(){
