@@ -316,8 +316,14 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         $order->update([
-            'status'=>26,
+            'status'=>29,
         ]);
+        $data = [
+          "status"=>"1",
+          "message" =>"ok",
+          "results" =>[],
+        ];
+        return response()->json($data);
     }
 
     public function getStatus(Request $request){
