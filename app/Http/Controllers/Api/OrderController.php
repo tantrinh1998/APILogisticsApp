@@ -12,6 +12,10 @@ use App\Person;
 use DB;
 use App\Doisoat;
 use App\Khohang;
+use App\Province;
+use App\District;
+use App\Commune;
+
 class OrderController extends Controller
 {
     /**
@@ -25,7 +29,7 @@ class OrderController extends Controller
     public function index()
     {
         $user_id = Auth::user()->id;
-        $orders = Order::where('user_id',$user_id)->with('PickUper','Receiver','getStatus')->get();
+        $orders = Order::where('user_id',$user_id)->where('status','!=',29)->with('PickUper','Receiver','getStatus')->get();
         $data = [
             'message' => 'ok',
             'status' => '1',
@@ -71,7 +75,7 @@ class OrderController extends Controller
           "config" => 'required|numeric',
               // "soc" => 'required|string',
               // "note" => 'required|string',
-          "product_type" => 'required|numeric',
+          // "product_type" => 'required|numeric',
           // "products" => 'required|string',
 
               ]);
@@ -99,7 +103,7 @@ class OrderController extends Controller
           "config" => 'required|numeric',
               // "soc" => 'required|string',
               // "note" => 'required|string',
-          "product_type" => 'required|numeric',
+          // "product_type" => 'required|numeric',
           // "products" => 'required|string',
 
         ]);
@@ -176,7 +180,7 @@ class OrderController extends Controller
         $service = $request->service;
         $config = $request->config;
         $payer = $request->payer;
-        $product_type = $request->product_type;
+        $product_type = $request->product_type ?? 1;
         $product = $request->product ?? null;
         $products = $request->products ?? null;
         $barter = $request->barter;
@@ -213,7 +217,7 @@ class OrderController extends Controller
         'service' => $service,
         'config' => $config,
         'payer' => $payer ,
-        'product_type' => $product_type,
+        'product_type' => $product_type ?? 1,
         'product' => $product,
         'products' => json_encode($products),
         'barter' => $barter,
@@ -270,15 +274,51 @@ class OrderController extends Controller
      * @param  \App\Order  $order
      * @return \Illuminate\Http\Response
      */
+    public function findAddressByCodedistrict ($commune_code) {
+        // $person = New 
+        
+        $commune =  Commune::where('commune_code',$commune_code)->first();
+        // dd($commune);
+        $commune->district->province;
+       
+        $results = 
+                    $commune->name . ' - ' .
+                    $commune->district->name .' - ' .
+                    $commune->district->province->name;
+
+      return $results;
+    }
     public function show(Order $order)
     {
-        $results = ($order->with('PickUper','Receiver','getStatus')->first()); 
-        $data = [
+
+        $results = $order->load('PickUper','Receiver','getStatus');
+        // dd( $results);  
+        $receive =Person::find( $results->receiver_id);
+        // dd($receive);
+        $receiverAddress = $receive->address . " - ". $this->findAddressByCodedistrict ($receive->commune);
+
+        $pickuper =Person::find( $results->pickup_id);
+        // dd($receive);
+        $pickuperAddress = $pickuper->address . " - ". $this->findAddressByCodedistrict ($pickuper->commune);
+        // dd($pickuperAddress );
+        $results["receiverAddress"] = $receiverAddress; 
+        $results["pickuperAddress"] = $pickuperAddress; 
+        $data=[];
+        if($results->status !=='29'){
+           $data = [
             'message' => 'Ok',
             'status'=>'1',
             'results' => $results,
 
-        ];
+         ];
+        } else
+        { $data = [
+                    'message' => 'Ok',
+                    'status'=>'1',
+                    'results' => "",
+        
+                ];}
+       
 
 
         return response()->json($data);
