@@ -30,10 +30,29 @@ class OrderController extends Controller
     {
         $user_id = Auth::user()->id;
         $orders = Order::where('user_id',$user_id)->where('status','!=',29)->with('PickUper','Receiver','getStatus')->get();
+        $results =[];
+        foreach ($orders as $key => $element) {
+            $temp = $element;
+            
+            $receive =Person::find( $temp->receiver_id);
+        // dd($receive);
+            $receiverAddress = $receive->address . " - ". $this->findAddressByCodedistrict ($receive->commune);
+
+            $pickuper =Person::find( $temp->pickup_id);
+            // dd($receive);
+            $pickuperAddress = $pickuper->address . " - ". $this->findAddressByCodedistrict ($pickuper->commune);
+            // dd($pickuperAddress );
+            $temp["receiverAddress"] = $receiverAddress; 
+            $temp["pickuperAddress"] = $pickuperAddress; 
+
+             $results[] = $temp;
+
+        }
+        
         $data = [
             'message' => 'ok',
             'status' => '1',
-            'results' => $orders
+            'results' => $results
         ];
 
         return response()->json($data);
