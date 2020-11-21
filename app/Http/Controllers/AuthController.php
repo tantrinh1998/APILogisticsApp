@@ -16,6 +16,23 @@ class AuthController extends Controller
      * @param  [string] password_confirmation
      * @return [string] message
      */
+    public function setDoiSoat(Request $request){
+        $request->validate([
+            "ngayDoiSoat" =>'required|numeric'
+        ]);
+        $id = Auth::user()->id;
+        $user = User::findOrFail($id);
+        $doisoat = ['doisoat'=>$request->ngayDoiSoat];
+        $user->update($doisoat);
+
+        $data =[
+            "status"=> "1",
+            "message"=>"ok",
+            "results"=>$request->ngayDoiSoat,
+        ];
+        return response()->json($data);
+
+    }
     public function signup(Request $request)
     {
         $request->validate([

@@ -31,8 +31,8 @@ class CreateTableOrdersTable extends Migration
             $table->string('product')->nullable();
             $table->json('products')->nullable();
             $table->string('barter')->nullable();
-            $table->json('pickup')->nullable();
-            $table->json('delivery')->nullable();
+            $table->dateTime('pickup');
+            $table->dateTime('delivery');
             $table->json('journeys')->nullable();
             $table->string('notes')->nullable();
             $table->tinyInteger('user_id');

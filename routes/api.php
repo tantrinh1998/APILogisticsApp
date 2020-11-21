@@ -40,6 +40,7 @@ Route::group( ['middleware'=>'auth:api'],function(){
 
 	Route::group(['prefix' => 'doi-soat'], function(){
 		Route::post('doi-soat-all','Api\OrderController@doiSoatToanBoOrder');
+		Route::post('set-doi-soat','AuthController@setDoiSoat');
 		Route::get('get-all-doi-soat','Api\OrderController@getAllDoiSoat');
 
 		Route::get('get-doi-soat-theo-dot-user','Api\OrderController@getDoiSoatTheoDotCua1User');

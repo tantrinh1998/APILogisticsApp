@@ -15,6 +15,7 @@ use App\Khohang;
 use App\Province;
 use App\District;
 use App\Commune;
+use Carbon\Carbon;
 
 class OrderController extends Controller
 {
@@ -135,6 +136,11 @@ class OrderController extends Controller
         if(isset($request->pickup_code)) {
           $khohang = Khohang::where('code',$request->pickup_code)->first();
           // dd($khohang); 
+          if( empty($khohang)) {
+            $logg = ["log"=>"kho hang khong ton tai"];
+            return response()->json( $logg);
+            die();
+          }
           $arrPerson = [
             'code' => $request->pickup_code ?? null,
             'name' =>  null,
@@ -164,7 +170,7 @@ class OrderController extends Controller
             'type' => 1,
         ];
         }
-
+        $soc="";
         $code="";
         DB::beginTransaction();
         try {
@@ -207,6 +213,7 @@ class OrderController extends Controller
 
         $id_last = Order::orderBy('id','desc')->first()->id ?? 0;
         $id_last+=1;
+        
         $soc = 'PK.DACN'. $id_last;
 
         $code = 'MDH.DACN'.$id_last;
@@ -219,13 +226,15 @@ class OrderController extends Controller
 
         $fee = $this->tinhtien($request->province,$request->pickup_province,$request->weight,$checkHuyen);
         $status = 1 ;
-        $pickup = null;
-        $delivery = null;
+        $dt = Carbon::now();
+        $ddt = Carbon::now();
+        $pickup = $dt->addYears(1);
+        $delivery = $ddt->addYears(3);
         $journeys = null;
 
         $arrOrder =  [
         'code' => $code, 
-        'soc' =>  $soc,
+        'soc' =>  $soc ??   null,
         'pickup_id' => $pickup_id,
         'receiver_id' => $receiver_id,
         'amount' => $amount,
@@ -242,7 +251,7 @@ class OrderController extends Controller
         'barter' => $barter,
         'pickup' => $pickup,
         'delivery' => $delivery,
-        'journeys' => $journeys,
+        'journeys' => $journeys ?? null,
         'notes' => $notes,
         'user_id' => $user_id,
         'status' =>$status,
@@ -257,13 +266,13 @@ class OrderController extends Controller
         DB::commit();
         } catch (\Exception $e) {
         DB::rollBack();
-        
+          
         \Log::info($e);
-
-        // return "cc";
+        $logg = ["log"=>"khong luu duoc"];
+        return response()->json($logg );
         }
 
-
+        
 
     // $status_name = "Chờ Duyệt"; 
  // dd( $code);
