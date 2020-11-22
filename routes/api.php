@@ -37,6 +37,7 @@ Route::group( ['middleware'=>'auth:api'],function(){
 	Route::post('orders-status','Api\OrderController@updateStatus');
 	// Route::get('doisoat','Api\OrderController@doisoat1donhang');
 	Route::get('list-status','Api\OrderController@getListStatus');
+	Route::get('getJourney','Api\OrderController@getJourney');
 
 	Route::group(['prefix' => 'doi-soat'], function(){
 		Route::post('doi-soat-all','Api\OrderController@doiSoatToanBoOrder');

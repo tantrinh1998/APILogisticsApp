@@ -16,7 +16,7 @@ use App\Province;
 use App\District;
 use App\Commune;
 use Carbon\Carbon;
-
+use App\Journey;
 class OrderController extends Controller
 {
     /**
@@ -363,10 +363,28 @@ class OrderController extends Controller
     {
         
         if($order->status != 1) return response()->json(['Error'=>'No update when status there']);
+        $arrUpdateReceiver =[];
+        foreach ($request->only(['phone','name','email','address','province','district','commune']) as $key => $value) {
+          if($value) $arrUpdateReceiver[$key]=$value;
+        }
+        // dd($arrUpdateReceiver);
 
-          $receiver = Person::find($order->receiver_id)->update($request->only(['phone','name','email']));
+        $arrUpdateOrder = [];
+        foreach ($request->only(['amount','value','weight','note','config','products']) as $key => $value) {
+          if($value) $arrUpdateOrder[$key]=$value;
+        }
+        // dd($arrUpdateOrder);
+
+        $arrUpdatePickUper = ['code'=>$request->pickup_code];
+
         
-        $results = ($order->with('PickUper','Receiver')->first());
+        $receiver = Person::find($order->receiver_id)->update($arrUpdateReceiver);
+        $pickuper = Person::find($order->pickup_id)->update($arrUpdatePickUper);
+
+        $order->update($arrUpdateOrder);
+        // dd($order);
+        $results = ($order);
+
         $data = [
             'status'=>1,
             'message' =>"ok",
@@ -429,7 +447,13 @@ class OrderController extends Controller
         $order->update([
             'status'=>$request->status,
         ]);
-
+        $arrJourney = [
+          'status' => $request->status,
+          'id_order' =>  $order->id,
+          'note' => $request->note ?? null ,
+          'update_date' => Carbon::now()
+        ];
+        $journey = Journey::create( $arrJourney);
         $statusName = $order->getstatus->value;
         // dd($statusName);
         $results =[
@@ -444,7 +468,20 @@ class OrderController extends Controller
         ];
         return response()->json($data);
     }
+    public function getJourney(Request $request) {
+        $request->validate([
+           'id_order' => 'required',
+        ]);
 
+        $journey = Journey::where('id_order',$request->id_order)->get();
+
+        $data = [
+          'status'=> '1',
+          "message" =>'ok',
+          "results" => $journey
+        ];
+        return response()->json($data);
+    }
     public function doisoat1donhang( $code ,$user_id){
         // $code =$request->code;
         $check= -1;

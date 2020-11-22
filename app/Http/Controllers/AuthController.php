@@ -38,17 +38,24 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|confirmed'
+            'password' => 'required|string|confirmed',
+            'phone' => 'required|numeric',
+            'shop_name'=>'required|string',
         ]);
         $user = new User([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'shop_name' => $request->shop_name,
             'password' => bcrypt($request->password)
         ]);
         $user->save();
         $results =[
             'name' => $request->name,
+
             'email' => $request->email,
+            'phone' => $request->phone,
+            'shop_name' => $request->shop_name,
         ];
         $data = [
             'messaage' => 'Successfully created user!',
