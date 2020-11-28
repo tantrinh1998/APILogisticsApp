@@ -293,6 +293,13 @@ class OrderController extends Controller
         'status' =>'1',
         'results' => $results,
      ];
+      $arrJourney = [
+          'status' =>1,
+          'id_order' =>  $order->id ?? 0,
+          'note' => "Tao Don Hang"  ,
+          'update_date' => Carbon::now()
+        ];
+      $journey = Journey::create( $arrJourney);
      // dd($aab);
     return response()->json($data);
 }
@@ -383,7 +390,7 @@ class OrderController extends Controller
 
         $order->update($arrUpdateOrder);
         // dd($order);
-        $results = ($order);
+        $results = ($orders);
 
         $data = [
             'status'=>1,
@@ -409,6 +416,15 @@ class OrderController extends Controller
           "message" =>"ok",
           "results" =>[],
         ];
+
+        $arrJourney = [
+          'status' =>29,
+          'id_order' =>  $order->id,
+          'note' => " Huy Don Hang" ,
+          'update_date' => Carbon::now()
+        ];
+
+        $journey = Journey::create( $arrJourney);
         return response()->json($data);
     }
 
@@ -471,15 +487,20 @@ class OrderController extends Controller
     public function getJourney(Request $request) {
         $request->validate([
            'id_order' => 'required',
+
         ]);
 
-        $journey = Journey::where('id_order',$request->id_order)->get();
-
-        $data = [
+       
+      $journey = Journey::where('id_order',$request->id_order)->get();
+       
+           
+           $data = [
           'status'=> '1',
           "message" =>'ok',
-          "results" => $journey
-        ];
+          "results" => $journey];
+        
+
+
         return response()->json($data);
     }
     public function doisoat1donhang( $code ,$user_id){
@@ -495,6 +516,15 @@ class OrderController extends Controller
         if($check != 5 ){
 
             $order = Order::where('code',$code)->first();
+            $arrJourney = [
+              'status' =>30,
+              'id_order' =>  $order->id,
+              'note' => " Da DOi Soat, Chua Thanh Toan" ,
+              'update_date' => Carbon::now()
+            ];
+        
+            $journey = Journey::create( $arrJourney);
+
             $phibaohiem =0;
             $amount =0;
             $fee=0;
