@@ -186,7 +186,7 @@ class OrderController extends Controller
             'email' => $request->email ?? null,
             'phone' => $request->phone,
             'sphone' => $request->sphone ?? null,
-            'address' => $request->address,
+            'address' => $request->address ?? null,
             'province' => $request->province,
             'district' => $request->district,
             'commune' => $request->commune,
@@ -268,7 +268,7 @@ class OrderController extends Controller
         DB::rollBack();
           
         \Log::info($e);
-        $logg = ["log"=>"khong luu duoc"];
+        $logg = ["log"=>$e];
         return response()->json($logg );
         }
 
@@ -279,7 +279,7 @@ class OrderController extends Controller
 
     $results = [ 
         'code' => $code ,
-        'soc' => $soc,
+        'soc' => $soc ?? null,
         'phone' => $request->phone,
         'amount' =>$amount,
         'weight' => $weight,
@@ -368,14 +368,23 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
-        
+        // dd($request->all());
+
+
         if($order->status != 1) return response()->json(['Error'=>'No update when status there']);
-        $arrUpdateReceiver =[];
+
+        $temp = [];
+        foreach ($request->all() as $key => $value) {
+            if(isset($order[$key]) && $value != $order[$key]) {
+                   $temp[$key] = $value;
+            }
+        }
+
+               $arrUpdateReceiver =[];
         foreach ($request->only(['phone','name','email','address','province','district','commune']) as $key => $value) {
           if($value) $arrUpdateReceiver[$key]=$value;
         }
-        // dd($arrUpdateReceiver);
-
+        
         $arrUpdateOrder = [];
         foreach ($request->only(['amount','value','weight','note','config','products']) as $key => $value) {
           if($value) $arrUpdateOrder[$key]=$value;
@@ -390,13 +399,23 @@ class OrderController extends Controller
 
         $order->update($arrUpdateOrder);
         // dd($order);
-        $results = ($orders);
+        $results = $order;
 
         $data = [
             'status'=>1,
             'message' =>"ok",
             'results' =>$results,
         ];
+        
+
+         $arrJourney = [
+          'status' =>$order->status,
+          'id_order' => $order->id,
+          'note' => 'update: ' . json_encode($temp) ,
+          'update_date' => Carbon::now()
+        ];
+
+        $journey = Journey::create( $arrJourney);
         return response()->json($data);
     }
 
