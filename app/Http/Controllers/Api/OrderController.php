@@ -228,8 +228,8 @@ class OrderController extends Controller
         $status = 1 ;
         $dt = Carbon::now();
         $ddt = Carbon::now();
-        $pickup = $dt->addYears(1);
-        $delivery = $ddt->addYears(3);
+        $pickup = $dt->addDay(1);
+        $delivery = $ddt->addDay(3);
         $journeys = null;
 
         $arrOrder =  [
@@ -380,22 +380,38 @@ class OrderController extends Controller
             }
         }
 
-               $arrUpdateReceiver =[];
+          $arrUpdateReceiver =[];
+          $receiver = Person::find($order->receiver_id);
         foreach ($request->only(['phone','name','email','address','province','district','commune']) as $key => $value) {
-          if($value) $arrUpdateReceiver[$key]=$value;
+          if($value) {
+
+          $arrUpdateReceiver[$key]=$value;
+
+          if(isset($receiver[$key]) && $value != $receiver[$key]) {
+                   $temp[$key] = $value;
+            }
+          }
         }
         
+        $pickuper = Person::find($order->pickup_id);
         $arrUpdateOrder = [];
         foreach ($request->only(['amount','value','weight','note','config','products']) as $key => $value) {
-          if($value) $arrUpdateOrder[$key]=$value;
+          if($value) {
+            $arrUpdateOrder[$key]=$value;
+          
+          if(isset($receiver[$key]) && $value != $receiver[$key]) {
+                   $temp[$key] = $value;
+            }
+          }
         }
+        
         // dd($arrUpdateOrder);
 
         $arrUpdatePickUper = ['code'=>$request->pickup_code];
 
         
-        $receiver = Person::find($order->receiver_id)->update($arrUpdateReceiver);
-        $pickuper = Person::find($order->pickup_id)->update($arrUpdatePickUper);
+        $receiver->update($arrUpdateReceiver);
+        $pickuper->update($arrUpdatePickUper);
 
         $order->update($arrUpdateOrder);
         // dd($order);
@@ -407,15 +423,18 @@ class OrderController extends Controller
             'results' =>$results,
         ];
         
+        if(!empty($temp)){
 
+      
          $arrJourney = [
           'status' =>$order->status,
           'id_order' => $order->id,
           'note' => 'update: ' . json_encode($temp) ,
           'update_date' => Carbon::now()
         ];
-
-        $journey = Journey::create( $arrJourney);
+          $journey = Journey::create( $arrJourney);
+        }
+       
         return response()->json($data);
     }
 
@@ -506,11 +525,15 @@ class OrderController extends Controller
     public function getJourney(Request $request) {
         $request->validate([
            'id_order' => 'required',
-
+          
         ]);
-
-       
-      $journey = Journey::where('id_order',$request->id_order)->get();
+      $mode = $request->mode ?? 1 ;
+      if($mode<2) {
+          $journey = Journey::where('id_order',$request->id_order)->groupBy('status')->get();
+      } else {
+           $journey = Journey::where('id_order',$request->id_order)->get();
+      }
+      
        
            
            $data = [
@@ -523,6 +546,7 @@ class OrderController extends Controller
         return response()->json($data);
     }
     public function doisoat1donhang( $code ,$user_id){
+        // dd($code);
         // $code =$request->code;
         $check= -1;
         $listCodeOrder = Doisoat::select('code')->get();
@@ -535,6 +559,7 @@ class OrderController extends Controller
         if($check != 5 ){
 
             $order = Order::where('code',$code)->first();
+            // dd($order);
             $arrJourney = [
               'status' =>30,
               'id_order' =>  $order->id,
@@ -559,7 +584,7 @@ class OrderController extends Controller
             $tiendoisoat = $amount - $fee -$phibaohiem ;
 
             $arrDoiSoat = [
-                "code"=>$code->code,
+                "code"=>$code,
                 "tiendoisoat"=>$tiendoisoat,
                 "status" => 30,
                 "user_id" => $user_id,
@@ -575,9 +600,9 @@ class OrderController extends Controller
     public function doiSoatToanBoCua1User($user_id){
         
         $listCodeDonHang = Order::select('code')->where('user_id',$user_id)->get();
-
+        // dd($listCodeDonHang);
         foreach($listCodeDonHang as $element){
-            $this->doisoat1donhang($element ,$user_id);
+            $this->doisoat1donhang($element->code ,$user_id);
         };
        
     }
