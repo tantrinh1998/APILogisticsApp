@@ -274,7 +274,7 @@ class tinhPhiController extends Controller
       $codeA =  $districtA->province_code;
       $codeB =  $districtB->province_code;
    
-      $weight =  $request->weight ??;
+      $weight =  $request->weight ?? 1 ;
       $checkHuyen =1;
       if($request->maHuyenA == $request->maHuyenB)  $checkHuyen=0;
       $rangeMien =0 ;

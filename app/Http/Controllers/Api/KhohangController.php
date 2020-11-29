@@ -49,7 +49,9 @@ class KhohangController extends Controller
             'address' => 'required|string',
             'primary' => 'required|numeric',
         ]);
-
+        $CheckCommune =Commune::where('commune_code',$request->code_commune)->first();
+          $log = ["log"=>"code commune khong dung"];
+          if(empty($CheckCommune)) return response()->json( $log);
         $user_id = Auth::user()->id;
 
         $stt = Khohang::orderby('id','desc')->first()->id ?? 0;
