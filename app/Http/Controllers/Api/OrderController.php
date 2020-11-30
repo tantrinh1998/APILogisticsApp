@@ -567,6 +567,7 @@ class OrderController extends Controller
         if($check != 5 ){
 
             $order = Order::where('code',$code)->first();
+            $order->update(["status"=>30]);
             // dd($order);
             $arrJourney = [
               'status' =>30,
