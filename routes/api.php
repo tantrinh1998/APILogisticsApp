@@ -35,7 +35,7 @@ Route::group( ['middleware'=>'auth:api'],function(){
 	Route::apiResource('orders','Api\OrderController');
 	Route::get('orders-status','Api\OrderController@getStatus');
 	Route::post('orders-status','Api\OrderController@updateStatus');
-	// Route::get('doisoat','Api\OrderController@doisoat1donhang');
+	// Route::get('test','Api\OrderController@test');
 	Route::get('list-status','Api\OrderController@getListStatus');
 	Route::get('getJourney','Api\OrderController@getJourney');
 

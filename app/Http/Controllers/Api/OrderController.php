@@ -30,7 +30,7 @@ class OrderController extends Controller
     public function index()
     {
         $user_id = Auth::user()->id;
-        $orders = Order::where('user_id',$user_id)->where('status','!=',29)->with('PickUper','Receiver','getStatus')->get();
+        $orders = Order::where('user_id',$user_id)->with('PickUper','Receiver','getStatus')->get();
         $results =[];
         foreach ($orders as $key => $element) {
             $temp = $element;
@@ -45,8 +45,11 @@ class OrderController extends Controller
             // dd($pickuperAddress );
             $temp["receiverAddress"] = $receiverAddress; 
             $temp["pickuperAddress"] = $pickuperAddress; 
-
-             $results[] = $temp;
+            $journey = Journey::where('id_order',$element->id)->groupBy('status')->get();
+            $history = Journey::where('id_order',$element->id)->get();
+            $temp["journey"] = $journey; 
+            $temp["history"] = $history; 
+            $results[] = $temp;
 
         }
         
@@ -55,6 +58,10 @@ class OrderController extends Controller
             'status' => '1',
             'results' => $results
         ];
+
+         
+      
+
 
         return response()->json($data);
     }
@@ -333,9 +340,16 @@ class OrderController extends Controller
     }
     public function show(Order $order)
     {
-
+        $id_order = $order->id;
         $results = $order->load('PickUper','Receiver','getStatus');
-        // dd( $results);  
+        $id_order = $order->id;
+
+
+     
+        $journey = Journey::where('id_order', $id_order)->groupBy('status')->get();
+      
+        $history = Journey::where('id_order', $id_order)->get();
+      
         $receive =Person::find( $results->receiver_id);
         // dd($receive);
         $receiverAddress = $receive->address . " - ". $this->findAddressByCodedistrict ($receive->commune);
@@ -346,7 +360,10 @@ class OrderController extends Controller
         // dd($pickuperAddress );
         $results["receiverAddress"] = $receiverAddress; 
         $results["pickuperAddress"] = $pickuperAddress; 
+        $results["history"] =  $history;
+        $results["journey"] =  $journey;
         $data=[];
+
         if($results->status !=='29'){
            $data = [
             'message' => 'Ok',
@@ -641,11 +658,27 @@ class OrderController extends Controller
                     ->groupBy(function($date) {
                       return \Carbon\Carbon::parse($date->created_at)->format('y-m-d');
                       });
-
+        
+       foreach ($doisoat as $key => $value) {
+          foreach ($value as $keyy => $element) {
+            # code...
+            $order = Order::where('code',$element->code)->first() ;
+             
+                // dd($order);
+                // $tempp["doisoat"] = $value;
+                // $tempp["order"] = $order;
+                // $results[]=[
+                //   'doisoat' => $value,
+                //   'order' =>$order,
+                // ];
+                // dd($doisoat[$key]);
+                 $doisoat[$key][$keyy]->order = $order ?? null;
+          }
+        }               
        $data = [
           "status" => '1',
           "message" => 'ok',
-          'results' => $doisoat
+          'results' =>  $doisoat
        ];
        return response()->json($data);
     }
@@ -656,7 +689,22 @@ class OrderController extends Controller
                     ->groupBy(function($date) {
                       return \Carbon\Carbon::parse($date->created_at)->format('y-m-d');
                       });
-
+       foreach ($doisoat as $key => $value) {
+          foreach ($value as $keyy => $element) {
+            # code...
+            $order = Order::where('code',$element->code)->first() ;
+             
+                // dd($order);
+                // $tempp["doisoat"] = $value;
+                // $tempp["order"] = $order;
+                // $results[]=[
+                //   'doisoat' => $value,
+                //   'order' =>$order,
+                // ];
+                // dd($doisoat[$key]);
+                 $doisoat[$key][$keyy]->order = $order ?? null;
+          }
+        }                  
        $data = [
           "status" => '1',
           "message" => 'ok',
@@ -946,7 +994,9 @@ class OrderController extends Controller
    }
 
    public function test() {
-      $data = $this->tinhtien(87,96,1,0);
-      dd($data);
+            // $journey = Journey::where('id_order',15)->groupBy('status')->get();
+            // $history = Journey::where('id_order',15)->get();
+            // $data = $history->groupBy('status');
+            // return response()->json( $history);
    }
 }
