@@ -32,12 +32,14 @@ Route::group( ['middleware'=>'auth:api'],function(){
 	// Route::get('test','AuthController@test');
 	// Route::apiResource('user','Api\UserController');
 	Route::apiResource('khohang', 'Api\KhohangController');
+	Route::post('/khohang/update-primary','Api\KhohangController@updatePrimary');
 	Route::apiResource('orders','Api\OrderController');
 	Route::get('orders-status','Api\OrderController@getStatus');
 	Route::post('orders-status','Api\OrderController@updateStatus');
-	// Route::get('test','Api\OrderController@test');
+	Route::get('test','Api\OrderController@test');
 	Route::get('list-status','Api\OrderController@getListStatus');
 	Route::get('getJourney','Api\OrderController@getJourney');
+	Route::post('search','Api\OrderController@search');
 
 	Route::group(['prefix' => 'doi-soat'], function(){
 		Route::post('doi-soat-all','Api\OrderController@doiSoatToanBoOrder');

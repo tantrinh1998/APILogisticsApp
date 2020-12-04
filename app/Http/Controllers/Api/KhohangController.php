@@ -47,8 +47,12 @@ class KhohangController extends Controller
             'code_district' => 'required|string',
             'code_province' => 'required|string',
             'address' => 'required|string',
-            'primary' => 'required|numeric',
+           
         ]);
+        $primary =  2;
+        $user_id = Auth::user()->id; 
+        $khohangg = Khohang::where('user_id',$user_id)->where("status",1)->get();
+        if(!isset($khohangg))  $primary = 1;
         $CheckCommune =Commune::where('commune_code',$request->code_commune)->first();
           $log = ["log"=>"code commune khong dung"];
           if(empty($CheckCommune)) return response()->json( $log);
@@ -75,7 +79,7 @@ class KhohangController extends Controller
             'address'  => $request->address,
             'formatted_address' => $formatted_address,
             'status'=>'1',
-            'primary' => $request->primary,
+            'primary' => $primary ,
             'user_id'=> $user_id,
         ];
 
@@ -92,7 +96,7 @@ class KhohangController extends Controller
             'formatted_address' => $formatted_address,          
             'status'=>'1',
             'status_name' => 'Hoạt Động',
-            'primary' => $request->primary,
+            'primary' => $primary,
             'primary_name' =>$primary_name,
             'created_at' => $khohang->created_at,
             'updated_at' => $khohang->updated_at,
@@ -137,7 +141,6 @@ class KhohangController extends Controller
         
         $request->validate([
              'name' => 'required|string',
-             // 'code' => 'required|string',
              'contact' => 'required|string',
              'phone' => 'required|numeric',
 
@@ -168,6 +171,37 @@ class KhohangController extends Controller
         ];
 
         return response()->json($data);
+    }
+
+    public function updatePrimary (Request $request){
+      $request->validate([
+        'primary' => 'required',
+        'code' => 'required'
+      ]);
+
+      $user_id = Auth::user()->id;
+      $khohangg = Khohang::where('code',$request->code)->first();
+      if($request->primary == 1){
+         $khohang = Khohang::where('user_id',$user_id)->get();
+         foreach ($khohang as $key => $value) {
+              $value->update(["primary"=>2]);
+         }
+         
+         $khohangg->update(["primary"=>1]);
+      } else {
+          $khohangg->update(["primary"=>2]);
+          $khohang = Khohang::where('user_id',$user_id)->first();
+          $khohang->update(["primary"=>1]);
+      }
+      $khohang1 = Khohang::where('user_id',$user_id)->get();
+      $results = $khohang1;
+      $data = [
+        "status"=>1,
+        "message"=>"ok",
+        "results"=>$results
+      ];
+      return response()->json($data);
+
     }
 
     /**

@@ -27,6 +27,7 @@ class OrderController extends Controller
     public function getDetailOrder($orders){
 
     }
+
     public function index()
     {
         $user_id = Auth::user()->id;
@@ -340,8 +341,9 @@ class OrderController extends Controller
     }
     public function show(Order $order)
     {
-        $id_order = $order->id;
+
         $results = $order->load('PickUper','Receiver','getStatus');
+
         $id_order = $order->id;
 
 
@@ -377,7 +379,7 @@ class OrderController extends Controller
                     'status'=>'1',
                     'results' => "",
         
-                ];}
+        ];}
        
 
 
@@ -584,6 +586,8 @@ class OrderController extends Controller
         if($check != 5 ){
 
             $order = Order::where('code',$code)->first();
+
+            if($order->status == 16 || $order->status==19){
             $order->update(["status"=>30]);
             // dd($order);
             $arrJourney = [
@@ -619,6 +623,7 @@ class OrderController extends Controller
 
             $doisoat = Doisoat::create($arrDoiSoat);
         }
+      }
 
 
     }
@@ -992,11 +997,68 @@ class OrderController extends Controller
       return $fee;
 
    }
+   public function formatOrder($order){
+        $results = $order->load('PickUper','Receiver','getStatus');
 
-   public function test() {
+        $id_order = $order->id;
+
+
+     
+        $journey = Journey::where('id_order', $id_order)->groupBy('status')->get();
+      
+        $history = Journey::where('id_order', $id_order)->get();
+      
+        $receive =Person::find( $results->receiver_id);
+        // dd($receive);
+        $receiverAddress = $receive->address . " - ". $this->findAddressByCodedistrict ($receive->commune);
+
+        $pickuper =Person::find( $results->pickup_id);
+        // dd($receive);
+        $pickuperAddress = $pickuper->address . " - ". $this->findAddressByCodedistrict ($pickuper->commune);
+        // dd($pickuperAddress );
+        $results["receiverAddress"] = $receiverAddress; 
+        $results["pickuperAddress"] = $pickuperAddress; 
+        $results["history"] =  $history;
+        $results["journey"] =  $journey;
+        $data=[];
+
+        if($results->status !=='29'){
+           $data = [
+            'message' => 'Ok',
+            'status'=>'1',
+            'results' => $results,
+
+         ];
+        } else
+        { $data = [
+                    'message' => 'Ok',
+                    'status'=>'1',
+                    'results' => "",
+        
+        ];}
+        return $data;
+   }
+   public function search(Request $request) {
             // $journey = Journey::where('id_order',15)->groupBy('status')->get();
             // $history = Journey::where('id_order',15)->get();
             // $data = $history->groupBy('status');
             // return response()->json( $history);
+
+        $fillter= Order::query()->status($request)->code($request)->from($request)
+        ->to($request);
+
+        $orders =$fillter->get();
+        $results=[];
+        foreach ($orders as $key => $value) {
+             $results[] = $this->formatOrder($value);
+        }
+
+        $data = [
+          "status"=>1,
+          "message"=>"ok",
+          "results"=>$results
+        ];
+        // $test = Order::where('receiver_id',38)->get();
+        return response()->json( $data);
    }
 }
