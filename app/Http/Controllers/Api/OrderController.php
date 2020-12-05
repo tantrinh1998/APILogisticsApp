@@ -307,8 +307,11 @@ class OrderController extends Controller
         'status' =>'1',
         'results' => $results,
      ];
+     $statusName = $order->getstatus->value;
+     // dd($statusName);
       $arrJourney = [
           'status' =>1,
+          'status_name'=>$statusName,
           'id_order' =>  $order->id ?? 0,
           'note' => "Tao Don Hang"  ,
           'update_date' => Carbon::now()
@@ -397,13 +400,14 @@ class OrderController extends Controller
     {
         // dd($request->all());
 
-
-        if($order->status != 1) return response()->json(['Error'=>'No update when status there']);
+        $str = "";
+        if($order->status != 1 && $order->status != 2) return response()->json(['Error'=>'No update when status there']);
 
         $temp = [];
         foreach ($request->all() as $key => $value) {
             if(isset($order[$key]) && $value != $order[$key]) {
                    $temp[$key] = $value;
+                  $str =  $str  .  $key ." : " .$value . " | " ;
             }
         }
 
@@ -416,18 +420,21 @@ class OrderController extends Controller
 
           if(isset($receiver[$key]) && $value != $receiver[$key]) {
                    $temp[$key] = $value;
+                    $str =  $str  .  $key ." : " .$value . " | " ;
             }
           }
         }
         
         $pickuper = Person::find($order->pickup_id);
         $arrUpdateOrder = [];
+        
         foreach ($request->only(['amount','value','weight','note','config','products']) as $key => $value) {
           if($value) {
             $arrUpdateOrder[$key]=$value;
           
           if(isset($receiver[$key]) && $value != $receiver[$key]) {
                    $temp[$key] = $value;
+                   $str =  $str  .  $key ." : " .$value . " | " ;
             }
           }
         }
@@ -452,11 +459,13 @@ class OrderController extends Controller
         
         if(!empty($temp)){
 
-      
+        $statusName = $order->getstatus->value;
          $arrJourney = [
           'status' =>$order->status,
+          'status_name' => $statusName,
           'id_order' => $order->id,
-          'note' => 'update: ' . json_encode($temp) ,
+          // 'note' => 'update: ' . json_encode($temp) ,
+          'note' =>  $str ? "update : {" .$str . "}" :   null ,
           'update_date' => Carbon::now()
         ];
           $journey = Journey::create( $arrJourney);
@@ -481,9 +490,10 @@ class OrderController extends Controller
           "message" =>"ok",
           "results" =>[],
         ];
-
+        $statusName = $order->getstatus->value;
         $arrJourney = [
           'status' =>29,
+          'status_name'=>$statusName,
           'id_order' =>  $order->id,
           'note' => " Huy Don Hang" ,
           'update_date' => Carbon::now()
@@ -528,14 +538,16 @@ class OrderController extends Controller
         $order->update([
             'status'=>$request->status,
         ]);
+        $statusName = $order->getstatus->value;
         $arrJourney = [
           'status' => $request->status,
+          'status_name' => $statusName->value,
           'id_order' =>  $order->id,
           'note' => $request->note ?? null ,
           'update_date' => Carbon::now()
         ];
         $journey = Journey::create( $arrJourney);
-        $statusName = $order->getstatus->value;
+       
         // dd($statusName);
         $results =[
             'code' => $order->code,
@@ -589,11 +601,13 @@ class OrderController extends Controller
 
             if($order->status == 16 || $order->status==19){
             $order->update(["status"=>30]);
+            $statusName = $order->getstatus->value;
             // dd($order);
             $arrJourney = [
               'status' =>30,
+              'status_name'=>$statusName,
               'id_order' =>  $order->id,
-              'note' => " Da DOi Soat, Chua Thanh Toan" ,
+              'note' => " Da Doi Soat, Chua Thanh Toan" ,
               'update_date' => Carbon::now()
             ];
         
@@ -1023,19 +1037,8 @@ class OrderController extends Controller
         $data=[];
 
         if($results->status !=='29'){
-           $data = [
-            'message' => 'Ok',
-            'status'=>'1',
-            'results' => $results,
-
-         ];
-        } else
-        { $data = [
-                    'message' => 'Ok',
-                    'status'=>'1',
-                    'results' => "",
-        
-        ];}
+           $data = $results;
+        }         
         return $data;
    }
    public function search(Request $request) {

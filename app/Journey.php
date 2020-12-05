@@ -13,5 +13,6 @@ class Journey extends Model
     	'id_order',
     	'note',
     	'status',
+    	'status_name',
     ];
 }
