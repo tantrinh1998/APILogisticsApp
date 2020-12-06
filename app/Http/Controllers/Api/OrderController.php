@@ -17,6 +17,7 @@ use App\District;
 use App\Commune;
 use Carbon\Carbon;
 use App\Journey;
+use App\ChiTietDoiSoat;
 class OrderController extends Controller
 {
     /**
@@ -31,11 +32,12 @@ class OrderController extends Controller
     public function index()
     {
         $user_id = Auth::user()->id;
-        $orders = Order::where('user_id',$user_id)->with('PickUper','Receiver','getStatus')->get();
+        $orders = Order::where('user_id',$user_id)->where("status","!=",29)->with('PickUper','Receiver','getStatus')->get();
         $results =[];
         foreach ($orders as $key => $element) {
             $temp = $element;
-            
+            // $orders[$key]['created_at'] = Carbon::parse($element->created_at)->format('Y/m/d H:i:s');
+            // dd($element);
             $receive =Person::find( $temp->receiver_id);
         // dd($receive);
             $receiverAddress = $receive->address . " - ". $this->findAddressByCodedistrict ($receive->commune);
@@ -487,8 +489,8 @@ class OrderController extends Controller
         ]);
         $data = [
           "status"=>"1",
-          "message" =>"ok",
-          "results" =>[],
+          "message" =>"deleted",
+          "results" =>$this->formatOrder( $order),
         ];
         $statusName = $order->getstatus->value;
         $arrJourney = [
@@ -541,9 +543,9 @@ class OrderController extends Controller
         $statusName = $order->getstatus->value;
         $arrJourney = [
           'status' => $request->status,
-          'status_name' => $statusName->value,
+          'status_name' => $statusName,
           'id_order' =>  $order->id,
-          'note' => $request->note ?? null ,
+          'note' => "update status to :".$statusName ,
           'update_date' => Carbon::now()
         ];
         $journey = Journey::create( $arrJourney);
@@ -587,6 +589,7 @@ class OrderController extends Controller
     public function doisoat1donhang( $code ,$user_id){
         // dd($code);
         // $code =$request->code;
+      $tiendoisoat=0;
         $check= -1;
         $listCodeOrder = Doisoat::select('code')->get();
         foreach ($listCodeOrder as $element) {
@@ -610,7 +613,7 @@ class OrderController extends Controller
               'note' => " Da Doi Soat, Chua Thanh Toan" ,
               'update_date' => Carbon::now()
             ];
-        
+           
             $journey = Journey::create( $arrJourney);
 
             $phibaohiem =0;
@@ -639,6 +642,7 @@ class OrderController extends Controller
         }
       }
 
+          return $tiendoisoat;
 
     }
 
@@ -646,10 +650,27 @@ class OrderController extends Controller
         
         $listCodeDonHang = Order::select('code')->where('user_id',$user_id)->get();
         // dd($listCodeDonHang);
+        $sum =0;
         foreach($listCodeDonHang as $element){
-            $this->doisoat1donhang($element->code ,$user_id);
+            $sum = $sum + $this->doisoat1donhang($element->code ,$user_id);
         };
-       
+        
+        if($sum!=0){
+        $stt = ChiTietDoiSoat::orderby('id','desc')->first()->id ?? 0;
+        $stt+=1;
+
+        $code = 'MDS00000'.$stt;
+        
+        $arrChiTietDoiSoat = [
+          'code'=>$code,
+          'user_id'=>$user_id,
+          'tien_doi_soat'=>$sum,
+          'tien_da_tra'=>0
+        ];
+          
+         $chiTietDoiSoat =ChiTietDoiSoat::create( $arrChiTietDoiSoat) ;
+        }
+        
     }
 
 
@@ -1048,7 +1069,7 @@ class OrderController extends Controller
             // return response()->json( $history);
 
         $fillter= Order::query()->status($request)->code($request)->from($request)
-        ->to($request);
+        ->to($request)->ReceiverPhone($request)->PickupPhone($request);
 
         $orders =$fillter->get();
         $results=[];
@@ -1063,5 +1084,43 @@ class OrderController extends Controller
         ];
         // $test = Order::where('receiver_id',38)->get();
         return response()->json( $data);
+   }
+
+   public function getDetailDoiSoat(Request $request){
+    $user_id = Auth::user()->id;
+    if(isset($request->code) ){
+      $results = ChiTietDoiSoat::where("code",$request->code)->get();
+    $data = [
+      'status'=>1,
+      'message'=>"ok",
+      'results'=>$results ,
+
+    ];
+    return response()->json($data);
+    }
+    $results = ChiTietDoiSoat::where("user_id",$user_id)->get();
+    $data = [
+      'status'=>1,
+      'message'=>"ok",
+      'results'=>$results 
+    ];
+    return response()->json($data);
+   }
+   
+   public function thanhToanDoiSoat(Request $request){
+    $request->validate([
+        'code' => 'required',
+        'money' => 'required'
+    ]);
+    $chiTietDoiSoat = ChiTietDoiSoat::where("code",$request->code)->first();
+    $money = $request->money + $chiTietDoiSoat->tien_da_tra;
+    $chiTietDoiSoat->update(['tien_da_tra'=>$money]);
+
+    $data = [
+      'status'=>1,
+      'message'=>"ok",
+      'results'=>$chiTietDoiSoat
+    ];
+    return response()->json($data);
    }
 }

@@ -21,7 +21,7 @@ class KhohangController extends Controller
     {
 
         $user_id = Auth::user()->id; 
-        $khohang = Khohang::where('user_id',$user_id)->get();
+        $khohang = Khohang::where('user_id',$user_id)->where("status",1)->get();
         $data=[
             'messaage' => 'ok',
             'status'=>'1',
@@ -49,10 +49,21 @@ class KhohangController extends Controller
             'address' => 'required|string',
            
         ]);
+        $user_id = Auth::user()->id;
         $primary =  2;
-        $user_id = Auth::user()->id; 
-        $khohangg = Khohang::where('user_id',$user_id)->where("status",1)->get();
-        if(!isset($khohangg))  $primary = 1;
+        if(isset($request->primary) && $request->primary == 1){
+         $khohang = Khohang::where('user_id',$user_id)->where("status",1)->get();
+         foreach ($khohang as $key => $value) {
+              $value->update(["primary"=>2]);
+           }
+        $primary =  1 ;
+         } else{
+          $khohangg = Khohang::where('user_id',$user_id)->where("status",1)->get();
+          if(!isset($khohangg))  $primary = 1;
+         }
+        
+        
+        
         $CheckCommune =Commune::where('commune_code',$request->code_commune)->first();
           $log = ["log"=>"code commune khong dung"];
           if(empty($CheckCommune)) return response()->json( $log);
@@ -212,7 +223,19 @@ class KhohangController extends Controller
      */
     public function destroy(Khohang $khohang)
     {
-        //
+        $khohang->update(["status"=>2]);
+        $user_id = Auth::user()->id;
+        
+        if($khohang->primary == 1){
+         $khohangg = Khohang::where('user_id',$user_id)->where("status",1)->first();
+         $khohangg->update(["primary"=>1]);
+        }
+        $data = [
+          "status"=>1,
+          "messgae"=>"deleted",
+          "results"=>$khohang
+        ];
+        return response()->json($data);
     }
 
         public function findByCommune ($district_code) {

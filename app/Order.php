@@ -57,18 +57,18 @@ class Order extends Model
     return $query;
     }
 
-    public function scopePhone($query, $request){
+    public function scopeReceiverPhone($query, $request){
 
-        if ($request->has('phone')) {
-            $reciver = Person::where('phone',$request->phone)->get();
-            // dd( $reciver);
-            foreach ($reciver as $key => $value) {
-                // dd( $value);
-                $query->orWhere('receiver_id',  $value->id);
-            };
-            // $query->orWhere('receiver_id',  $reciver->id);
+        if ($request->has('receiver_phone')) {
+           $query->join('persons',"receiver_id", "persons.id")->where("persons.phone",$request->phone);
         }
-    
+        return $query;
+    }
+    public function scopePickupPhone($query, $request){
+
+        if ($request->has('pickup_phone')) {
+           $query->join('persons',"pickup_id", "persons.id")->where("persons.phone",$request->phone);
+        }
     return $query;
     }
     public function scopeFrom($query, $request){

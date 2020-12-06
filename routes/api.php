@@ -48,6 +48,8 @@ Route::group( ['middleware'=>'auth:api'],function(){
 
 		Route::get('get-doi-soat-theo-dot-user','Api\OrderController@getDoiSoatTheoDotCua1User');
 		Route::get('get-doi-soat-theo-dot-all','Api\OrderController@getDoiSoatTheoDotAll');
+		Route::get('thong-tin-doi-soat','Api\OrderController@getDetailDoiSoat');
+		Route::post('thanh-toan-doi-soat','Api\OrderController@thanhToanDoiSoat');
 	});
 	
 
