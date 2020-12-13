@@ -402,14 +402,14 @@ class OrderController extends Controller
     {
         // dd($request->all());
 
-        $str = "";
+        $str = " Đã thay đổi : \n ";
         if($order->status != 1 && $order->status != 2) return response()->json(['Error'=>'No update when status there']);
 
         $temp = [];
         foreach ($request->all() as $key => $value) {
             if(isset($order[$key]) && $value != $order[$key]) {
                    $temp[$key] = $value;
-                  $str =  $str  .  $key ." : " .$value . " | " ;
+                  $str =  $str  . "- ".  $key ." từ " . $order[$key] . " thành " .$value . "\n" ;
             }
         }
 
@@ -422,7 +422,7 @@ class OrderController extends Controller
 
           if(isset($receiver[$key]) && $value != $receiver[$key]) {
                    $temp[$key] = $value;
-                    $str =  $str  .  $key ." : " .$value . " | " ;
+                    $str =  $str  . " - ".  $key ." từ " . $order[$key] . " thành " .$value . "\n" ;
             }
           }
         }
@@ -436,7 +436,7 @@ class OrderController extends Controller
           
           if(isset($receiver[$key]) && $value != $receiver[$key]) {
                    $temp[$key] = $value;
-                   $str =  $str  .  $key ." : " .$value . " | " ;
+                   $str =  $str  . " - ".  $key ." từ " . $order[$key] . " thành " .$value . "\n" ;
             }
           }
         }
@@ -467,7 +467,7 @@ class OrderController extends Controller
           'status_name' => $statusName,
           'id_order' => $order->id,
           // 'note' => 'update: ' . json_encode($temp) ,
-          'note' =>  $str ? "update : {" .$str . "}" :   null ,
+          'note' =>  $str ? $str  :   null ,
           'update_date' => Carbon::now()
         ];
           $journey = Journey::create( $arrJourney);
@@ -484,8 +484,16 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        $order->update([
-            'status'=>29,
+        if($order->status>5){
+          $order->update([
+            $data = [
+          "status"=>"1",
+          "message" =>"Đơn hàng sau khi đã lấy không được hủy!!",
+          "results" =>"error : hủy không thành công.",
+        ];
+        return response()->json($data);
+        }
+
         ]);
         $data = [
           "status"=>"1",
@@ -545,7 +553,7 @@ class OrderController extends Controller
           'status' => $request->status,
           'status_name' => $statusName,
           'id_order' =>  $order->id,
-          'note' => "update status to :".$statusName ,
+          'note' => "update status to : ".$statusName ,
           'update_date' => Carbon::now()
         ];
         $journey = Journey::create( $arrJourney);
@@ -589,6 +597,7 @@ class OrderController extends Controller
     public function doisoat1donhang( $code ,$user_id){
         // dd($code);
         // $code =$request->code;
+      
       $tiendoisoat=0;
         $check= -1;
         $listCodeOrder = Doisoat::select('code')->get();
@@ -599,10 +608,11 @@ class OrderController extends Controller
         }
 
         if($check != 5 ){
-
+           
             $order = Order::where('code',$code)->first();
-
+           
             if($order->status == 16 || $order->status==19){
+             
             $order->update(["status"=>30]);
             $statusName = $order->getstatus->value;
             // dd($order);
@@ -610,7 +620,7 @@ class OrderController extends Controller
               'status' =>30,
               'status_name'=>$statusName,
               'id_order' =>  $order->id,
-              'note' => " Da Doi Soat, Chua Thanh Toan" ,
+              'note' => " Đã đối soát, Chưa Thanh Toán" ,
               'update_date' => Carbon::now()
             ];
            
@@ -619,6 +629,7 @@ class OrderController extends Controller
             $phibaohiem =0;
             $amount =0;
             $fee=0;
+
             if(!empty($order->value) && !empty($order->amount) && !empty($order->fee))
             {   $amount = $order->amount;
                 $fee = $order->fee;
@@ -641,8 +652,13 @@ class OrderController extends Controller
             $doisoat = Doisoat::create($arrDoiSoat);
         }
       }
-
-          return $tiendoisoat;
+      if(empty($doisoat)){
+        return;
+      }
+          return [
+            "tiendoisoat"=>$tiendoisoat,
+            'id'=> $doisoat->id
+          ];
 
     }
 
@@ -651,8 +667,14 @@ class OrderController extends Controller
         $listCodeDonHang = Order::select('code')->where('user_id',$user_id)->get();
         // dd($listCodeDonHang);
         $sum =0;
+        $arrIdDoiSoat=[];
         foreach($listCodeDonHang as $element){
-            $sum = $sum + $this->doisoat1donhang($element->code ,$user_id);
+            $doisoat = $this->doisoat1donhang($element->code ,$user_id);
+            if(!empty($doisoat)){
+                $sum = $sum + $doisoat['tiendoisoat'];
+                $arrIdDoiSoat[]=$doisoat['id'];
+            }
+            
         };
         
         if($sum!=0){
@@ -667,8 +689,10 @@ class OrderController extends Controller
           'tien_doi_soat'=>$sum,
           'tien_da_tra'=>0
         ];
-          
+        
          $chiTietDoiSoat =ChiTietDoiSoat::create( $arrChiTietDoiSoat) ;
+
+         Doisoat::whereIn('id',$arrIdDoiSoat)->update(['chitietdoisoat_id'=>$chiTietDoiSoat->id]);
         }
         
     }
@@ -1085,12 +1109,23 @@ class OrderController extends Controller
         // $test = Order::where('receiver_id',38)->get();
         return response()->json( $data);
    }
-
+   public function getOrderByCode($code){
+      $data = Order::where('code',$code)->first();
+      return $this->formatOrder($data);
+   }
    public function getDetailDoiSoat(Request $request){
     $user_id = Auth::user()->id;
     if(isset($request->code) ){
-      $results = ChiTietDoiSoat::where("code",$request->code)->get();
-    $data = [
+      $results = ChiTietDoiSoat::where("code",$request->code)->first();
+
+      $doisoat = Doisoat::select('code')->where('chitietdoisoat_id',"=",$results->id)
+                ->get();
+      $temp=[];
+      foreach ($doisoat as $key => $value) {
+                 $temp[]= $this->getOrderByCode($value->code);
+                }
+      $results['orders'] =  $temp;
+      $data = [
       'status'=>1,
       'message'=>"ok",
       'results'=>$results ,
@@ -1098,11 +1133,24 @@ class OrderController extends Controller
     ];
     return response()->json($data);
     }
-    $results = ChiTietDoiSoat::where("user_id",$user_id)->get();
+    $ChiTietDoiSoat = ChiTietDoiSoat::where('user_id',$user_id)->get();
+    // $arrCodeOrder=[];
+    foreach ($ChiTietDoiSoat as $key => $value) {
+        $code = Doisoat::select('code')->where('chitietdoisoat_id',$value->id)->get();
+        $arrOrder=[];
+        foreach ($code as $keyy => $valueT) {
+
+          $order = Order::where('code', $valueT->code)->first();
+           $arrOrder[]= $this->formatOrder($order);
+
+        }
+        $ChiTietDoiSoat[$key]["orders"]=$arrOrder;
+    }
+
     $data = [
       'status'=>1,
       'message'=>"ok",
-      'results'=>$results 
+      'results'=>$ChiTietDoiSoat
     ];
     return response()->json($data);
    }
@@ -1113,14 +1161,58 @@ class OrderController extends Controller
         'money' => 'required'
     ]);
     $chiTietDoiSoat = ChiTietDoiSoat::where("code",$request->code)->first();
+     if($chiTietDoiSoat->tien_da_tra >= $chiTietDoiSoat->tien_doi_soat){
+          $data = [
+          'status'=>2,
+          'message'=>" Failed",
+          'results'=>["error"=>"Doi soat da thanh toan du tien ,khong can thanh toan them "]
+        ];
+
+   
+    return response()->json($data);
+     }
+
     $money = $request->money + $chiTietDoiSoat->tien_da_tra;
+    if($money >= $chiTietDoiSoat->tien_doi_soat){
+          $note = 'Tien doi Soat lon hon tien can tra, so tien can tra la :'. ($chiTietDoiSoat->tien_doi_soat - $chiTietDoiSoat->tien_da_tra);
+          $data = [
+          'status'=>2,
+          'message'=>"Failed",
+          'results'=>['error'=>$note]
+        ];
+
+   
+    return response()->json($data);
+     }
     $chiTietDoiSoat->update(['tien_da_tra'=>$money]);
 
-    $data = [
-      'status'=>1,
-      'message'=>"ok",
-      'results'=>$chiTietDoiSoat
-    ];
+    if($chiTietDoiSoat->tien_da_tra >= $chiTietDoiSoat->tien_doi_soat){
+
+       $doisoat = Doisoat::select('code')->where('chitietdoisoat_id',$chiTietDoiSoat->id)->get();
+       
+       foreach ($doisoat as $key => $value) {
+        
+          $order = Order::where('code',$value->code)->first();
+          $order->update(['status'=>31]);
+
+          $statusName = $order->getstatus->value;
+          $arrJourney = [
+          'status' =>31,
+          'status_name'=>$statusName,
+          'id_order' =>  $order->id ?? 0,
+          'note' => "Thanh toán hoàn tất"  ,
+          'update_date' => Carbon::now()
+        ];
+        $journey = Journey::create( $arrJourney);
+       }
+    } 
+        $data = [
+          'status'=>1,
+          'message'=>"ok",
+          'results'=>$chiTietDoiSoat
+        ];
+
+   
     return response()->json($data);
    }
 }

@@ -27,16 +27,16 @@ class StatusSeeder extends Seeder
             'value' => "Hoãn Lấy Hàng",         
                   ]);
              DB::table('status')->insert([
-            'value' => "Hoãn Lấy Hàng",         
+            'value' => "",         
                   ]);
              DB::table('status')->insert([
-            'value' => "Hoãn Lấy Hàng",         
+            'value' => "",         
                   ]);
              DB::table('status')->insert([
-            'value' => "Hoãn Lấy Hàng",         
+            'value' => "",         
                   ]);
              DB::table('status')->insert([
-            'value' => "Hoãn Lấy Hàng",         
+            'value' => "",         
                   ]);
              DB::table('status')->insert([
             'value' => "Không Lấy Được",        

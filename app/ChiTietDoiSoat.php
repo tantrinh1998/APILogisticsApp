@@ -14,4 +14,8 @@ class ChiTietDoiSoat extends Model
     	"tien_doi_soat",
     	"tien_da_tra",
     ];
+
+    public function DoiSoat(){
+        return $this->hasMany('App\Doisoat','chitietdoisoat_id');
+    }
 }

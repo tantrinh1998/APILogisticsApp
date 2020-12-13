@@ -18,4 +18,7 @@ class Doisoat extends Model
     public function getStatus(){
         return $this->belongsTo('App\Status','status');
     }
+    public function OrderT(){
+        return $this->hasOne('App\Orders','code','code');
+    }
 }
