@@ -484,16 +484,17 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
+
         if($order->status>3){
           
             $data = [
+
           "status"=>"1",
           "message" =>"Đơn hàng sau khi đã lấy không được hủy!!",
           "results" =>"error : hủy không thành công.",
         ];
         return response()->json($data);
         }
-
         $order->update(['status'=>29]);
         $data = [
           "status"=>"1",
