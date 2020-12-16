@@ -13,6 +13,8 @@ class ChiTietDoiSoat extends Model
     	"user_id",
     	"tien_doi_soat",
     	"tien_da_tra",
+        "tong_tien_phi",
+        'tong_tien_thu_ho'
     ];
 
     public function DoiSoat(){

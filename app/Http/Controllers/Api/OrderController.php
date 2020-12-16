@@ -484,8 +484,8 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        if($order->status>5){
-          $order->update([
+        if($order->status>3){
+          
             $data = [
           "status"=>"1",
           "message" =>"Đơn hàng sau khi đã lấy không được hủy!!",
@@ -494,7 +494,7 @@ class OrderController extends Controller
         return response()->json($data);
         }
 
-        ]);
+        $order->update(['status'=>29]);
         $data = [
           "status"=>"1",
           "message" =>"deleted",
@@ -628,8 +628,7 @@ class OrderController extends Controller
 
             $phibaohiem =0;
             $amount =0;
-            $fee=0;
-
+            $fee=0;          
             if(!empty($order->value) && !empty($order->amount) && !empty($order->fee))
             {   $amount = $order->amount;
                 $fee = $order->fee;
@@ -647,6 +646,7 @@ class OrderController extends Controller
                 "status" => 30,
                 "user_id" => $user_id,
 
+
             ];
 
             $doisoat = Doisoat::create($arrDoiSoat);
@@ -657,7 +657,9 @@ class OrderController extends Controller
       }
           return [
             "tiendoisoat"=>$tiendoisoat,
-            'id'=> $doisoat->id
+            'id'=> $doisoat->id,
+             "phi" =>$fee+$phibaohiem,
+             'tongTienThuHo'=>$amount
           ];
 
     }
@@ -667,11 +669,15 @@ class OrderController extends Controller
         $listCodeDonHang = Order::select('code')->where('user_id',$user_id)->get();
         // dd($listCodeDonHang);
         $sum =0;
+        $tongPhi=0;
         $arrIdDoiSoat=[];
+        $tongTienThuHo=0;
         foreach($listCodeDonHang as $element){
             $doisoat = $this->doisoat1donhang($element->code ,$user_id);
             if(!empty($doisoat)){
                 $sum = $sum + $doisoat['tiendoisoat'];
+                $tongPhi = $tongPhi + $doisoat['phi'];
+                $tongTienThuHo =$tongTienThuHo+ $doisoat['tongTienThuHo'];
                 $arrIdDoiSoat[]=$doisoat['id'];
             }
             
@@ -687,6 +693,8 @@ class OrderController extends Controller
           'code'=>$code,
           'user_id'=>$user_id,
           'tien_doi_soat'=>$sum,
+          'tong_tien_phi'=>$tongPhi,
+          'tong_tien_thu_ho'=>$tongTienThuHo,
           'tien_da_tra'=>0
         ];
         
@@ -718,27 +726,29 @@ class OrderController extends Controller
     }
     public function getDoiSoatTheoDotCua1User(){
        $user_id = Auth::user()->id;
-       $doisoat  =  Doisoat::where('user_id',$user_id)->get()
-                    ->groupBy(function($date) {
-                      return \Carbon\Carbon::parse($date->created_at)->format('y-m-d');
-                      });
+
+       // $doisoat  =  Doisoat::where('user_id',$user_id)->get()
+       //              ->groupBy(function($date) {
+       //                return \Carbon\Carbon::parse($date->created_at)->format('y-m-d');
+       //                });
         
-       foreach ($doisoat as $key => $value) {
-          foreach ($value as $keyy => $element) {
-            # code...
-            $order = Order::where('code',$element->code)->first() ;
+       // foreach ($doisoat as $key => $value) {
+       //    foreach ($value as $keyy => $element) {
+       //      # code...
+       //      $order = Order::where('code',$element->code)->first() ;
              
-                // dd($order);
-                // $tempp["doisoat"] = $value;
-                // $tempp["order"] = $order;
-                // $results[]=[
-                //   'doisoat' => $value,
-                //   'order' =>$order,
-                // ];
-                // dd($doisoat[$key]);
-                 $doisoat[$key][$keyy]->order = $order ?? null;
-          }
-        }               
+       //          // dd($order);
+       //          // $tempp["doisoat"] = $value;
+       //          // $tempp["order"] = $order;
+       //          // $results[]=[
+       //          //   'doisoat' => $value,
+       //          //   'order' =>$order,
+       //          // ];
+       //          // dd($doisoat[$key]);
+       //           $doisoat[$key][$keyy]->order = $order ?? null;
+       //    }
+       //  }        
+       $doisoat = ChiTietDoiSoat::where("user_id",$user_id)->join('doisoat','chitietdoisoat_id','code')->get()     ;  
        $data = [
           "status" => '1',
           "message" => 'ok',
@@ -1112,6 +1122,16 @@ class OrderController extends Controller
    public function getOrderByCode($code){
       $data = Order::where('code',$code)->first();
       return $this->formatOrder($data);
+   }
+   public function getListDoiSoatCuaUser(){
+        $user_id = Auth::user()->id;
+        $results = ChiTietDoiSoat::where("user_id",$user_id)->get();
+        $data = [
+          'status'=>1,
+          'message'=>"ok",
+          'results'=>$results ,
+        ];
+    return response()->json($data);
    }
    public function getDetailDoiSoat(Request $request){
     $user_id = Auth::user()->id;
