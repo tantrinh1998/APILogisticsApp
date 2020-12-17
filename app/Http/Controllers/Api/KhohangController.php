@@ -57,9 +57,12 @@ class KhohangController extends Controller
               $value->update(["primary"=>2]);
            }
         $primary =  1 ;
-         } else{
+         } else {
+
           $khohangg = Khohang::where('user_id',$user_id)->where("status",1)->get();
-          if(!isset($khohangg))  $primary = 1;
+          if(empty($khohangg[0])){
+             $primary = 1;
+          }
          }
         
         
@@ -97,7 +100,7 @@ class KhohangController extends Controller
         $khohang = new Khohang($khohang_detail);
         $khohang->save();
 
-            if($request->primary == 1 ) 
+            if($primary == 1 ) 
                 $primary_name = "Kho Mặc Định" ;
             else $primary_name = "Kho Thường";
         $results = [
