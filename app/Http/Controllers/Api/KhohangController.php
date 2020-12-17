@@ -51,7 +51,9 @@ class KhohangController extends Controller
         ]);
         $user_id = Auth::user()->id;
         $primary =  2;
+        $khohangg=[];
         if(isset($request->primary) && $request->primary == 1){
+
          $khohang = Khohang::where('user_id',$user_id)->where("status",1)->get();
          foreach ($khohang as $key => $value) {
               $value->update(["primary"=>2]);
