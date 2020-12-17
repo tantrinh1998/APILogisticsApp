@@ -696,7 +696,9 @@ class OrderController extends Controller
           'tien_doi_soat'=>$sum,
           'tong_tien_phi'=>$tongPhi,
           'tong_tien_thu_ho'=>$tongTienThuHo,
-          'tien_da_tra'=>0
+          'tien_da_tra'=>0,
+          'status'=>30,
+          'status_name'=>"Chưa Thanh Toán"
         ];
         
          $chiTietDoiSoat =ChiTietDoiSoat::create( $arrChiTietDoiSoat) ;
@@ -1126,11 +1128,23 @@ class OrderController extends Controller
    }
    public function getListDoiSoatCuaUser(){
         $user_id = Auth::user()->id;
-        $results = ChiTietDoiSoat::where("user_id",$user_id)->get();
+        $ChiTietDoiSoat = ChiTietDoiSoat::where("user_id",$user_id)->get();
+
+        foreach ($ChiTietDoiSoat as $key => $value) {
+            $doisoat = Doisoat::select('code')->where('chitietdoisoat_id',"=",$value->id)
+                ->get();
+              
+            $temp=[];
+
+            foreach ($doisoat as $keyy => $valuee) {
+             $temp[]= $this->getOrderByCode($valuee->code);
+                }            
+             $ChiTietDoiSoat[$key]['CoutOrder'] = count($temp);
+        }
         $data = [
           'status'=>1,
           'message'=>"ok",
-          'results'=>$results ,
+          'results'=>$ChiTietDoiSoat,
         ];
     return response()->json($data);
    }
@@ -1179,54 +1193,10 @@ class OrderController extends Controller
    public function thanhToanDoiSoat(Request $request){
     $request->validate([
         'code' => 'required',
-        'money' => 'required'
     ]);
     $chiTietDoiSoat = ChiTietDoiSoat::where("code",$request->code)->first();
-     if($chiTietDoiSoat->tien_da_tra >= $chiTietDoiSoat->tien_doi_soat){
-          $data = [
-          'status'=>2,
-          'message'=>" Failed",
-          'results'=>["error"=>"Doi soat da thanh toan du tien ,khong can thanh toan them "]
-        ];
-
-   
-    return response()->json($data);
-     }
-
-    $money = $request->money + $chiTietDoiSoat->tien_da_tra;
-    if($money >= $chiTietDoiSoat->tien_doi_soat){
-          $note = 'Tien doi Soat lon hon tien can tra, so tien can tra la :'. ($chiTietDoiSoat->tien_doi_soat - $chiTietDoiSoat->tien_da_tra);
-          $data = [
-          'status'=>2,
-          'message'=>"Failed",
-          'results'=>['error'=>$note]
-        ];
-
-   
-    return response()->json($data);
-     }
-    $chiTietDoiSoat->update(['tien_da_tra'=>$money]);
-
-    if($chiTietDoiSoat->tien_da_tra >= $chiTietDoiSoat->tien_doi_soat){
-
-       $doisoat = Doisoat::select('code')->where('chitietdoisoat_id',$chiTietDoiSoat->id)->get();
-       
-       foreach ($doisoat as $key => $value) {
-        
-          $order = Order::where('code',$value->code)->first();
-          $order->update(['status'=>31]);
-
-          $statusName = $order->getstatus->value;
-          $arrJourney = [
-          'status' =>31,
-          'status_name'=>$statusName,
-          'id_order' =>  $order->id ?? 0,
-          'note' => "Thanh toán hoàn tất"  ,
-          'update_date' => Carbon::now()
-        ];
-        $journey = Journey::create( $arrJourney);
-       }
-    } 
+    $tienDaTra = $chiTietDoiSoat->tong_tien_thu_ho;
+    $chiTietDoiSoat->update(['status'=>'31',"status_name"=>"Đã Thanh Toán","tien_da_tra"=>$tienDaTra]);
         $data = [
           'status'=>1,
           'message'=>"ok",
@@ -1235,5 +1205,9 @@ class OrderController extends Controller
 
    
     return response()->json($data);
+   }
+
+   public function dashBoard(){
+      
    }
 }

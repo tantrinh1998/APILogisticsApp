@@ -14,7 +14,9 @@ class ChiTietDoiSoat extends Model
     	"tien_doi_soat",
     	"tien_da_tra",
         "tong_tien_phi",
-        'tong_tien_thu_ho'
+        'tong_tien_thu_ho',
+        "status",
+        "status_name"
     ];
 
     public function DoiSoat(){
