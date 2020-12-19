@@ -52,8 +52,20 @@ Route::group( ['middleware'=>'auth:api'],function(){
 		Route::get('danh-sach-ma-doi-soat','Api\OrderController@getListDoiSoatCuaUser');
 		Route::post('thanh-toan-doi-soat','Api\OrderController@thanhToanDoiSoat');
 	});
-	
+	Route::group(['prefix'=>'banking'], function(){
+	Route::post('/','BankingController@store');
+	Route::get('/','BankingController@index');
+	Route::get('/show','BankingController@show');
+	Route::post('/delete','BankingController@delete');
 
+	});
+	// Route::get('list-chi-nhanh','BankController@getListChiNhanh');
+});
+
+
+Route::group(['prefix'=>'bank'], function(){
+	Route::get('list-bank','BankController@getListBank');
+	Route::get('list-chi-nhanh','BankController@getListChiNhanh');
 });
 Route::group(['prefix' => 'address'], function(){
 	Route::get('/province', 'AddressController@province');
