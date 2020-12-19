@@ -1104,9 +1104,9 @@ class OrderController extends Controller
             // $history = Journey::where('id_order',15)->get();
             // $data = $history->groupBy('status');
             // return response()->json( $history);
-
+        $user_id = Auth::user()->id;
         $fillter= Order::query()->status($request)->code($request)->from($request)
-        ->to($request)->ReceiverPhone($request)->PickupPhone($request);
+        ->to($request)->ReceiverPhone($request)->PickupPhone($request)->where('user_id',$user_id);
 
         $orders =$fillter->get();
         $results=[];
@@ -1123,80 +1123,80 @@ class OrderController extends Controller
         return response()->json( $data);
    }
    public function getOrderByCode($code){
-      $data = Order::where('code',$code)->first();
-      return $this->formatOrder($data);
+        $data = Order::where('code',$code)->first();
+        return $this->formatOrder($data);
    }
    public function getListDoiSoatCuaUser(){
-        $user_id = Auth::user()->id;
-        $ChiTietDoiSoat = ChiTietDoiSoat::where("user_id",$user_id)->get();
+          $user_id = Auth::user()->id;
+          $ChiTietDoiSoat = ChiTietDoiSoat::where("user_id",$user_id)->get();
 
-        foreach ($ChiTietDoiSoat as $key => $value) {
-            $doisoat = Doisoat::select('code')->where('chitietdoisoat_id',"=",$value->id)
-                ->get();
-              
-            $temp=[];
+          foreach ($ChiTietDoiSoat as $key => $value) {
+              $doisoat = Doisoat::select('code')->where('chitietdoisoat_id',"=",$value->id)
+                  ->get();
+                
+              $temp=[];
 
-            foreach ($doisoat as $keyy => $valuee) {
-             $temp[]= $this->getOrderByCode($valuee->code);
-                }            
-             $ChiTietDoiSoat[$key]['CoutOrder'] = count($temp);
-        }
-        $data = [
-          'status'=>1,
-          'message'=>"ok",
-          'results'=>$ChiTietDoiSoat,
-        ];
-    return response()->json($data);
+              foreach ($doisoat as $keyy => $valuee) {
+               $temp[]= $this->getOrderByCode($valuee->code);
+                  }            
+               $ChiTietDoiSoat[$key]['CoutOrder'] = count($temp);
+          }
+          $data = [
+            'status'=>1,
+            'message'=>"ok",
+            'results'=>$ChiTietDoiSoat,
+          ];
+      return response()->json($data);
    }
    public function getDetailDoiSoat(Request $request){
-    $user_id = Auth::user()->id;
-    if(isset($request->code) ){
-      $results = ChiTietDoiSoat::where("code",$request->code)->first();
+      $user_id = Auth::user()->id;
+      if(isset($request->code) ){
+        $results = ChiTietDoiSoat::where("code",$request->code)->first();
 
-      $doisoat = Doisoat::select('code')->where('chitietdoisoat_id',"=",$results->id)
-                ->get();
-      $temp=[];
-      foreach ($doisoat as $key => $value) {
-                 $temp[]= $this->getOrderByCode($value->code);
-                }
-      $results['orders'] =  $temp;
+        $doisoat = Doisoat::select('code')->where('chitietdoisoat_id',"=",$results->id)
+                  ->get();
+        $temp=[];
+        foreach ($doisoat as $key => $value) {
+                   $temp[]= $this->getOrderByCode($value->code);
+                  }
+        $results['orders'] =  $temp;
+        $data = [
+        'status'=>1,
+        'message'=>"ok",
+        'results'=>$results ,
+
+      ];
+      return response()->json($data);
+      }
+      $ChiTietDoiSoat = ChiTietDoiSoat::where('user_id',$user_id)->get();
+      // $arrCodeOrder=[];
+      foreach ($ChiTietDoiSoat as $key => $value) {
+          $code = Doisoat::select('code')->where('chitietdoisoat_id',$value->id)->get();
+          $arrOrder=[];
+          foreach ($code as $keyy => $valueT) {
+
+            $order = Order::where('code', $valueT->code)->first();
+             $arrOrder[]= $this->formatOrder($order);
+
+          }
+          $ChiTietDoiSoat[$key]["orders"]=$arrOrder;
+      }
+
       $data = [
-      'status'=>1,
-      'message'=>"ok",
-      'results'=>$results ,
-
-    ];
-    return response()->json($data);
-    }
-    $ChiTietDoiSoat = ChiTietDoiSoat::where('user_id',$user_id)->get();
-    // $arrCodeOrder=[];
-    foreach ($ChiTietDoiSoat as $key => $value) {
-        $code = Doisoat::select('code')->where('chitietdoisoat_id',$value->id)->get();
-        $arrOrder=[];
-        foreach ($code as $keyy => $valueT) {
-
-          $order = Order::where('code', $valueT->code)->first();
-           $arrOrder[]= $this->formatOrder($order);
-
-        }
-        $ChiTietDoiSoat[$key]["orders"]=$arrOrder;
-    }
-
-    $data = [
-      'status'=>1,
-      'message'=>"ok",
-      'results'=>$ChiTietDoiSoat
-    ];
-    return response()->json($data);
+        'status'=>1,
+        'message'=>"ok",
+        'results'=>$ChiTietDoiSoat
+      ];
+      return response()->json($data);
    }
    
    public function thanhToanDoiSoat(Request $request){
-    $request->validate([
-        'code' => 'required',
-    ]);
-    $chiTietDoiSoat = ChiTietDoiSoat::where("code",$request->code)->first();
-    $tienDaTra = $chiTietDoiSoat->tong_tien_thu_ho;
-    $chiTietDoiSoat->update(['status'=>'31',"status_name"=>"Đã Thanh Toán","tien_da_tra"=>$tienDaTra]);
+      $request->validate([
+          'code' => 'required',
+      ]);
+      $chiTietDoiSoat = ChiTietDoiSoat::where("code",$request->code)->first();
+      $tienDaTra = $chiTietDoiSoat->tong_tien_thu_ho;
+     $chiTietDoiSoat->update(['status'=>'31',"status_name"=>"Đã Thanh Toán","tien_da_tra"=>$tienDaTra]);
         $data = [
           'status'=>1,
           'message'=>"ok",
@@ -1206,8 +1206,33 @@ class OrderController extends Controller
    
     return response()->json($data);
    }
+   public function getStatusName($status){
+        return Status::select('value')->where('id',$status)->first()->value;
+   }
+   public function dashBoard(Request $request){
+      $order = Order::query()->from($request)->to($request)->get();
+      $collection = collect($order);
+      $grouped = $collection->groupBy('status');
+      $dashBoard=[];
+      foreach ($grouped as $key => $value) {
+          $dashBoard[]=[
+            "status"=>$key,
+            "status_name"=>$this->getStatusName($key),
+            "count"=>$value->count('id'),
 
-   public function dashBoard(){
-      
+          ];
+      }
+      $results = [
+         "from_date"=>$request->fromDate ?? null ,
+         "to_date"=>$request->endDate ?? null,
+         "operations_report"=>$dashBoard
+      ];
+      $data = [
+          "status"=>1,
+          "message"=>"ok",
+          "results"=>$results
+        ];
+
+      return response()->json( $data);  
    }
 }
