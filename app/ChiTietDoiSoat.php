@@ -16,10 +16,15 @@ class ChiTietDoiSoat extends Model
         "tong_tien_phi",
         'tong_tien_thu_ho',
         "status",
-        "status_name"
+        "status_name",
+        "the_ngan_hang"
     ];
 
     public function DoiSoat(){
         return $this->hasMany('App\Doisoat','chitietdoisoat_id');
+    }
+
+    public function ChiTietThe(){
+        return $this->belongsTo('App\Banking','the_ngan_hang','id');
     }
 }

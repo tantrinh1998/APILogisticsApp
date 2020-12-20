@@ -18,6 +18,7 @@ use App\Commune;
 use Carbon\Carbon;
 use App\Journey;
 use App\ChiTietDoiSoat;
+use App\Banking;
 class OrderController extends Controller
 {
     /**
@@ -1152,14 +1153,17 @@ class OrderController extends Controller
       $user_id = Auth::user()->id;
       if(isset($request->code) ){
         $results = ChiTietDoiSoat::where("code",$request->code)->first();
-
+        $results->load('ChiTietThe');
         $doisoat = Doisoat::select('code')->where('chitietdoisoat_id',"=",$results->id)
                   ->get();
         $temp=[];
         foreach ($doisoat as $key => $value) {
                    $temp[]= $this->getOrderByCode($value->code);
+
                   }
         $results['orders'] =  $temp;
+        $results['total'] =  count($doisoat);
+
         $data = [
         'status'=>1,
         'message'=>"ok",
@@ -1170,9 +1174,11 @@ class OrderController extends Controller
       }
       $ChiTietDoiSoat = ChiTietDoiSoat::where('user_id',$user_id)->get();
       // $arrCodeOrder=[];
+
       foreach ($ChiTietDoiSoat as $key => $value) {
           $code = Doisoat::select('code')->where('chitietdoisoat_id',$value->id)->get();
           $arrOrder=[];
+           $ChiTietDoiSoat[$key]->load('ChiTietThe');
           foreach ($code as $keyy => $valueT) {
 
             $order = Order::where('code', $valueT->code)->first();
@@ -1180,6 +1186,8 @@ class OrderController extends Controller
 
           }
           $ChiTietDoiSoat[$key]["orders"]=$arrOrder;
+          $ChiTietDoiSoat[$key]["total"]=count($code);
+
       }
 
       $data = [
@@ -1194,13 +1202,23 @@ class OrderController extends Controller
       $request->validate([
           'code' => 'required',
       ]);
-      $chiTietDoiSoat = ChiTietDoiSoat::where("code",$request->code)->first();
-      $tienDaTra = $chiTietDoiSoat->tong_tien_thu_ho;
-     $chiTietDoiSoat->update(['status'=>'31',"status_name"=>"Đã Thanh Toán","tien_da_tra"=>$tienDaTra]);
+     $chiTietDoiSoat = ChiTietDoiSoat::where("code",$request->code)->first();
+     $doisoat = Doisoat::select('code')->where('chitietdoisoat_id',"=",$chiTietDoiSoat->id)
+                  ->get();
+        $temp=[];
+     foreach ($doisoat as $key => $value) {
+                  $order = Order::where('code',$value->code)->first();
+                  if(!empty($order))  $order->update(['status'=>31]);
+                 
+      }
+     $tienDaTra = $chiTietDoiSoat->tong_tien_thu_ho;
+     $user_id = Auth::user()->id;
+     $banking = Banking::select('id')->where('user_id',$user_id)->where('primary',1)->first();
+     $chiTietDoiSoat->update(['status'=>'31',"status_name"=>"Đã Thanh Toán","tien_da_tra"=>$tienDaTra,"the_ngan_hang"=>$banking->id]);
         $data = [
           'status'=>1,
           'message'=>"ok",
-          'results'=>$chiTietDoiSoat
+          'results'=>$banking
         ];
 
    

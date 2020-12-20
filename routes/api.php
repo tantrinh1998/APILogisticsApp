@@ -58,6 +58,7 @@ Route::group( ['middleware'=>'auth:api'],function(){
 	Route::get('/','BankingController@index');
 	Route::get('/show','BankingController@show');
 	Route::post('/delete','BankingController@delete');
+	Route::post('/update-primary','BankingController@updatePrimary');
 
 	});
 	// Route::get('list-chi-nhanh','BankController@getListChiNhanh');

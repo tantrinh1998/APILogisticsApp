@@ -83,4 +83,25 @@ class BankingController extends Controller
     	];
     	return response()->json($data);
     }
+
+    public function updatePrimary(Request $request){
+    	$request->validate([
+    		'id'=> 'required',
+    	]);
+    	$user_id = Auth::user()->id;
+    	$bankings = Banking::where('user_id',$user_id)->get();
+    	foreach ($bankings as $key => $value) {
+    		$bankings[$key]->update(["primary"=>2]);
+    	}
+
+    	$banking = Banking::where('id',$request->id)->first();
+    	$banking->update(['primary'=>1]);
+    	
+    	$data = [
+    		"status"=>1,
+    		"message"=>"updated",
+    		"results"=>$banking
+    	];
+    	return response()->json($data);
+    }
 }
