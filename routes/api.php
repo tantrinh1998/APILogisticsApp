@@ -67,6 +67,7 @@ Route::group( ['middleware'=>'auth:api'],function(){
 
 Route::group(['prefix'=>'bank'], function(){
 	Route::get('list-bank','BankController@getListBank');
+	Route::get('list-province','BankController@getListTinh');
 	Route::get('list-chi-nhanh','BankController@getListChiNhanh');
 });
 Route::group(['prefix' => 'address'], function(){
