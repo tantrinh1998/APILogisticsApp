@@ -231,9 +231,9 @@ class OrderController extends Controller
         $id_last = Order::orderBy('id','desc')->first()->id ?? 0;
         $id_last+=1;
         
-        $soc = 'PK.DACN'. $id_last;
+        $soc = 'PKDACN'. $id_last;
 
-        $code = 'MDH.DACN'.$id_last;
+        $code = 'MDHDACN'.$id_last;
 
         //luu order
         $checkHuyen = 0;
