@@ -1172,7 +1172,12 @@ class OrderController extends Controller
       ];
       return response()->json($data);
       }
-      $ChiTietDoiSoat = ChiTietDoiSoat::where('user_id',$user_id)->get();
+      if(isset($request->the_ngan_hang)){
+        $ChiTietDoiSoat = ChiTietDoiSoat::where('the_ngan_hang',$request->the_ngan_hang)->get();
+      } else {
+        $ChiTietDoiSoat = ChiTietDoiSoat::where('user_id',$user_id)->get();
+      }
+      
       // $arrCodeOrder=[];
 
       foreach ($ChiTietDoiSoat as $key => $value) {
@@ -1230,20 +1235,31 @@ class OrderController extends Controller
    public function dashBoard(Request $request){
       $order = Order::query()->from($request)->to($request)->get();
       $collection = collect($order);
-      $grouped = $collection->groupBy('status');
-      $dashBoard=[];
-      foreach ($grouped as $key => $value) {
-          $dashBoard[]=[
-            "status"=>$key,
-            "status_name"=>$this->getStatusName($key),
-            "count"=>$value->count('id'),
+      $ChoLayHang = $collection->where('status','<',11);
+      $DangVanChuyen = $collection->where('status','>',10)->where('status','<',15);
+      $DangGiaoHang = $collection->whereIn('status',[15,17,18,19]);
+      $TraHang = $collection->whereIn('status',[21,22,23,24,25]);
+      $GiaoThanhCong = $collection->where('status','=',16);
+      $DaDoiSoat =$collection->whereIn('status',[20,30]);
+      $DaThanhToan = $collection->where('status',31);
+      $Huy = $collection->where('status','=',26);
+      $temp=[
+        "ChoLayHang" => [ "count" => $ChoLayHang->count('id'), "status"=>11],
+        "DangVanChuyen" => [ "count" =>$DangVanChuyen->count('id'),"listStatusOrder"=>[10,11,12,13,14,15]],
+        "DangGiaoHang" => [ "count" =>$DangGiaoHang->count('id'),"status"=>[15,17,18,19]],
+        "TraHang" => [ "count" =>$TraHang->count('id'),"status"=>[21,22,23,24,25]],
+        "GiaoThanhCong" =>[ "count" => $GiaoThanhCong ->count('id'),"status"=>16],
+        "DaDoiSoat" =>[ "count" => $DaDoiSoat->count('id'),"status"=>[20,30]],
+        "DaThanhToan" =>[ "count" => $DaThanhToan->count('id'),"status"=>31],
+        "DaHuy" =>[ "count" =>$Huy->count('id'),"status"=>26],
+      ];
 
-          ];
-      }
+
+      
       $results = [
          "from_date"=>$request->fromDate ?? null ,
          "to_date"=>$request->endDate ?? null,
-         "operations_report"=>$dashBoard
+         "category"=>$temp,
       ];
       $data = [
           "status"=>1,
