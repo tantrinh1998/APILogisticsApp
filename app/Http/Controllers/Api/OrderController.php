@@ -76,7 +76,7 @@ class OrderController extends Controller
         $data = [
             'status' => 1,
             'message' => 'ok',
-            'check'=>2,
+            'check'=>"status",
             'results' =>  $results,
         ];
         return response()->json($data);
@@ -87,7 +87,7 @@ class OrderController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request  $request)
+    public function store(Request $request)
     {
 
       if(isset($request->pickup_code)) {
@@ -296,35 +296,35 @@ class OrderController extends Controller
     // $status_name = "Chờ Duyệt"; 
  // dd( $code);
 
-    $results = [ 
-        'code' => $code ,
-        'soc' => $soc ?? null,
-        'phone' => $request->phone,
-        'amount' =>$amount,
-        'weight' => $weight,
-        'fee' => $fee,
-        'status'=> $status,
-        'status_name' =>$aab,
-     ];
+      $results = [ 
+          'code' => $code ,
+          'soc' => $soc ?? null,
+          'phone' => $request->phone,
+          'amount' =>$amount,
+          'weight' => $weight,
+          'fee' => $fee,
+          'status'=> $status,
+          'status_name' =>$aab,
+      ];
 
-     $data = [
-        'message' => 'Create Order Success',
-        'status' =>'1',
-        'check' => '1',
-        'results' => $results,
-     ];
-     $statusName = $order->getstatus->value;
-     // dd($statusName);
-      $arrJourney = [
-          'status' =>1,
-          'status_name'=>$statusName,
-          'id_order' =>  $order->id ?? 0,
-          'note' => "Tao Don Hang"  ,
-          'update_date' => Carbon::now()
-        ];
-      $journey = Journey::create( $arrJourney);
-     // dd($aab);
-    return response()->json($data);
+      $data = [
+          'message' => 'Create Order Success',
+          'status' =>'1',
+          'check' => 'store',
+          'results' => $results,
+      ];
+      $statusName = $order->getstatus->value;
+      // dd($statusName);
+        $arrJourney = [
+            'status' =>1,
+            'status_name'=>$statusName,
+            'id_order' =>  $order->id ?? 0,
+            'note' => "Tao Don Hang"  ,
+            'update_date' => Carbon::now()
+          ];
+        $journey = Journey::create( $arrJourney);
+      // dd($aab);
+      return response()->json($data);
 }
     /**
      * Display the specified resource.
