@@ -139,7 +139,7 @@ class OrderController extends Controller
           // "products" => 'required|string',
 
         ]);
-         $CheckCommune =Commune::where('commune_code',$request->pickup_commune)->first();
+        $CheckCommune =Commune::where('commune_code',$request->pickup_commune)->first();
         $log = ["log"=>"code commune khong dung"];
         if(empty($CheckCommune)) return response()->json( $log);
       }
@@ -308,6 +308,7 @@ class OrderController extends Controller
      $data = [
         'message' => 'Create Order Success',
         'status' =>'1',
+        'check' => '1',
         'results' => $results,
      ];
      $statusName = $order->getstatus->value;
