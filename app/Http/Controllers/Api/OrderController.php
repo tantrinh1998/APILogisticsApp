@@ -60,6 +60,7 @@ class OrderController extends Controller
         $data = [
             'message' => 'ok',
             'status' => '1',
+            "check" => "index",
             'results' => $results
         ];
 
