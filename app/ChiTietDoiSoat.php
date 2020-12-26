@@ -23,7 +23,22 @@ class ChiTietDoiSoat extends Model
     public function DoiSoat(){
         return $this->hasMany('App\Doisoat','chitietdoisoat_id');
     }
+    public function scopeFrom($query, $request){
 
+        if ($request->has('fromDate')) {
+            $query->whereDate('created_at',">=", $request->fromDate);
+        }
+
+        return $query;
+    }
+    public function scopeTo($query, $request){
+
+        if ($request->has('toDate')) {
+            $query->whereDate('created_at',"<=", $request->endDate);
+        }
+
+        return $query;
+    }
     public function ChiTietThe(){
         return $this->belongsTo('App\Banking','the_ngan_hang','id');
     }

@@ -1174,7 +1174,8 @@ class OrderController extends Controller
       if(isset($request->the_ngan_hang)){
         $ChiTietDoiSoat = ChiTietDoiSoat::where('the_ngan_hang',$request->the_ngan_hang)->get();
       } else {
-        $ChiTietDoiSoat = ChiTietDoiSoat::where('user_id',$user_id)->get();
+        $ChiTietDoiSoat = ChiTietDoiSoat::where('user_id',$user_id)->from($request)
+        ->to($request)->get();
       }
       
       // $arrCodeOrder=[];
