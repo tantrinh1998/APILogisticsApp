@@ -690,7 +690,6 @@ class OrderController extends Controller
         $stt+=1;
 
         $code = 'MDS00000'.$stt;
-        
         $arrChiTietDoiSoat = [
           'code'=>$code,
           'user_id'=>$user_id,
@@ -1220,12 +1219,13 @@ class OrderController extends Controller
      $user_id = Auth::user()->id;
      $banking = Banking::select('id')->where('user_id',$user_id)->where('primary',1)->first();
      $chiTietDoiSoat->update(['status'=>'31',"status_name"=>"Đã Thanh Toán","tien_da_tra"=>$tienDaTra,"the_ngan_hang"=>$banking->id]);
-        $data = [
+     $chiTietDoiSoat->load('ChiTietThe'); 
+     $data = [
           'status'=>1,
           'message'=>"ok",
-          'results'=>$banking
+          'results'=>$chiTietDoiSoat
         ];
-
+        
    
     return response()->json($data);
    }
