@@ -790,7 +790,8 @@ class OrderController extends Controller
        return response()->json($data);
     }
     public function getAllDoiSoat(){
-        $doisoat = Doisoat::all();
+        $user_id = Auth::user()->id;
+        $doisoat = Doisoat::where('user_id',$user_id)->get();
         $data = [
             'status'=>1,
             'message'=>'ok',
@@ -1168,14 +1169,17 @@ class OrderController extends Controller
         'message'=>"ok",
         'results'=>$results ,
 
-      ];
-      return response()->json($data);
+       ];
+        return response()->json($data);
       }
       if(isset($request->the_ngan_hang)){
-        $ChiTietDoiSoat = ChiTietDoiSoat::where('the_ngan_hang',$request->the_ngan_hang)->get();
+        $ChiTietDoiSoat = ChiTietDoiSoat::where('the_ngan_hang',$request->the_ngan_hang)
+        ->where('user_id',$user_id)->get();
       } else {
-        $ChiTietDoiSoat = ChiTietDoiSoat::where('user_id',$user_id)->from($request)
-        ->to($request)->get();
+        $fillter= ChiTietDoiSoat::query()->from($request)
+        ->to($request)->where('user_id',$user_id);
+        $ChiTietDoiSoat = $fillter->get();
+        // echo($request);die();
       }
       
       // $arrCodeOrder=[];
@@ -1234,7 +1238,8 @@ class OrderController extends Controller
         return Status::select('value')->where('id',$status)->first()->value;
    }
    public function dashBoard(Request $request){
-      $order = Order::query()->from($request)->to($request)->get();
+      $user_id = Auth::user()->id;
+      $order = Order::query()->from($request)->to($request)->where('user_id',$user_id)->get();
       $collection = collect($order);
       $ChoLayHang = $collection->where('status','<',11);
       $DangVanChuyen = $collection->where('status','>',10)->where('status','<',15);

@@ -34,7 +34,7 @@ class ChiTietDoiSoat extends Model
     public function scopeTo($query, $request){
 
         if ($request->has('toDate')) {
-            $query->whereDate('created_at',"<=", $request->endDate);
+            $query->whereDate('created_at',"<=", $request->toDate);
         }
 
         return $query;
