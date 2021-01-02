@@ -33,7 +33,7 @@ Route::group( ['middleware'=>'auth:api'],function(){
 	// Route::apiResource('user','Api\UserController');
 	Route::apiResource('khohang', 'Api\KhohangController');
 	Route::post('/khohang/update-primary','Api\KhohangController@updatePrimary');
-	Route::apiResource('orders','Api\OrderController');
+	// Route::apiResource('orders','Api\OrderController');
 	Route::post('orderss','Api\OrderController@store');
 	Route::get('orders-status','Api\OrderController@getStatus');
 	Route::post('orders-status','Api\OrderController@updateStatus');

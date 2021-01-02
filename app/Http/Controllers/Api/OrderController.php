@@ -1226,7 +1226,7 @@ class OrderController extends Controller
      $tienDaTra = $chiTietDoiSoat->tong_tien_thu_ho;
      $user_id = Auth::user()->id;
      $banking = Banking::select('id')->where('user_id',$user_id)->where('primary',1)->first();
-     $chiTietDoiSoat->update(['status'=>'31',"status_name"=>"Đã Thanh Toán","tien_da_tra"=>$tienDaTra,"the_ngan_hang"=>$banking->id]);
+     $chiTietDoiSoat->update(['status'=>'31',"status_name"=>"Đã Thanh Toán","tien_da_tra"=>$tienDaTra,"the_ngan_hang"=>$banking->id ?? null]);
      $chiTietDoiSoat->load('ChiTietThe'); 
      $data = [
           'status'=>1,
